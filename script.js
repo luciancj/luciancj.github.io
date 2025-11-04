@@ -1,11 +1,9 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
-import { ScreenRenderEngine } from './renderEngine.js';
 
 // Terminal State
 let commandHistory = [];
 let historyIndex = -1;
 let currentPath = '~';
-let renderEngine = null;
 
 // DOM Elements
 const terminalOutput = document.getElementById('terminal-output');
@@ -17,7 +15,9 @@ const loadingText = document.getElementById('loading-text');
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   initTerminal();
-  initWebGL();
+  initWebGL().catch(err => {
+    console.error('WebGL initialization error:', err);
+  });
   simulateLoading();
 });
 
@@ -374,90 +374,84 @@ function showTree() {
 
 // ===== THREE.JS / WEBGL BACKGROUND =====
 async function initWebGL() {
-  const canvas = document.querySelector('.webgl');
-  const scene = new THREE.Scene();
-  
-  // Camera
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  camera.position.z = 5;
-  
-  // Renderer
-  const renderer = new THREE.WebGLRenderer({
-    canvas: canvas,
-    alpha: true,
-    antialias: true
-  });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  
-  // Initialize screen render engine with CRT effects
-  const terminalContent = document.getElementById('terminal-content');
-  renderEngine = new ScreenRenderEngine(renderer, 512, 512);
-  await renderEngine.createScreenMesh(terminalContent);
-  
-  // Create geometric shapes
-  const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-  const material = new THREE.MeshNormalMaterial({
-    wireframe: true
-  });
-  const torusKnot = new THREE.Mesh(geometry, material);
-  scene.add(torusKnot);
-  
-  // Particles
-  const particlesGeometry = new THREE.BufferGeometry();
-  const particlesCount = 1000;
-  const posArray = new Float32Array(particlesCount * 3);
-  
-  for(let i = 0; i < particlesCount * 3; i++) {
-    posArray[i] = (Math.random() - 0.5) * 10;
-  }
-  
-  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-  const particlesMaterial = new THREE.PointsMaterial({
-    size: 0.02,
-    color: 0x00ff00,
-    transparent: true,
-    opacity: 0.6
-  });
-  
-  const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-  scene.add(particlesMesh);
-  
-  // Animation
-  const clock = new THREE.Clock();
-  
-  function animate() {
-    const elapsedTime = clock.getElapsedTime();
+  try {
+    const canvas = document.querySelector('.webgl');
+    const scene = new THREE.Scene();
     
-    // Rotate shapes
-    torusKnot.rotation.x = elapsedTime * 0.3;
-    torusKnot.rotation.y = elapsedTime * 0.2;
+    // Camera
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.z = 5;
     
-    // Rotate particles
-    particlesMesh.rotation.y = elapsedTime * 0.05;
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    // Render with CRT effects
-    if (renderEngine) {
-      renderEngine.render();
+    // Create geometric shapes
+    const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+    const material = new THREE.MeshNormalMaterial({
+      wireframe: true
+    });
+    const torusKnot = new THREE.Mesh(geometry, material);
+    scene.add(torusKnot);
+    
+    // Particles
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 1000;
+    const posArray = new Float32Array(particlesCount * 3);
+    
+    for(let i = 0; i < particlesCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 10;
     }
     
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.02,
+      color: 0x00ff00,
+      transparent: true,
+      opacity: 0.6
+    });
+    
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particlesMesh);
+    
+    // Animation
+    const clock = new THREE.Clock();
+    
+    function animate() {
+      const elapsedTime = clock.getElapsedTime();
+      
+      // Rotate shapes
+      torusKnot.rotation.x = elapsedTime * 0.3;
+      torusKnot.rotation.y = elapsedTime * 0.2;
+      
+      // Rotate particles
+      particlesMesh.rotation.y = elapsedTime * 0.05;
+      
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  } catch (error) {
+    console.error('WebGL initialization failed:', error);
   }
-  
-  animate();
-  
-  // Handle resize
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
 }
 
 // Make executeCommand global for button clicks
