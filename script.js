@@ -374,6 +374,7 @@ function showTree() {
 `;
   addOutput(tree);
 }
+*/
 
 // ===== THREE.JS / WEBGL BACKGROUND =====
 async function initWebGL() {
@@ -471,7 +472,6 @@ function initCRTShader() {
     console.error('CRT shader initialization error:', error);
   }
 }
-*/
 
 // Make executeCommand global for button clicks (temporarily disabled)
 // window.executeCommand = executeCommand;
