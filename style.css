@@ -187,39 +187,43 @@ body {
   max-height: 600px;
   background: var(--terminal-bg);
   overflow: hidden;
-  border-radius: 8px;
   
-  /* Visible but tasteful CRT Bulge Effect */
+  /* Visible CRT Bulge Effect - Curved Glass Screen */
+  border-radius: 12% / 10%;
   transform: 
     perspective(800px)
-    translateZ(30px);
+    translateZ(40px);
   transform-style: preserve-3d;
   
-  /* Glass bulge simulation with vignette */
+  /* Glass bulge simulation with strong vignette */
   box-shadow: 
-    inset 0 0 100px rgba(0, 255, 0, 0.05),
-    inset 0 0 60px rgba(0, 0, 0, 0.5),
-    inset 0 10px 30px rgba(0, 0, 0, 0.4),
-    inset 0 -10px 30px rgba(0, 0, 0, 0.4);
+    inset 0 0 120px rgba(0, 255, 0, 0.06),
+    inset 0 0 80px rgba(0, 0, 0, 0.6),
+    inset 0 15px 40px rgba(0, 0, 0, 0.5),
+    inset 0 -15px 40px rgba(0, 0, 0, 0.5),
+    inset 15px 0 40px rgba(0, 0, 0, 0.4),
+    inset -15px 0 40px rgba(0, 0, 0, 0.4);
 }
 
 #terminal-container::before {
   content: '';
   position: absolute;
-  top: 8%;
-  left: 8%;
-  width: 40%;
-  height: 40%;
+  top: 5%;
+  left: 5%;
+  width: 45%;
+  height: 45%;
   background: radial-gradient(
     ellipse at center,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.04) 30%,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.08) 20%,
+    rgba(255, 255, 255, 0.02) 40%,
     transparent 70%
   );
   pointer-events: none;
   z-index: 3;
   border-radius: 50%;
-  filter: blur(10px);
+  filter: blur(15px);
+  mix-blend-mode: screen;
 }
 
 #terminal-container::after {
@@ -232,14 +236,15 @@ body {
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.2) 70%,
-    rgba(0, 0, 0, 0.6) 90%,
-    rgba(0, 0, 0, 0.9) 100%
+    transparent 45%,
+    rgba(0, 0, 0, 0.25) 65%,
+    rgba(0, 0, 0, 0.5) 80%,
+    rgba(0, 0, 0, 0.75) 92%,
+    rgba(0, 0, 0, 0.95) 100%
   );
   pointer-events: none;
   z-index: 4;
-  border-radius: 8px;
+  border-radius: 12% / 10%;
 }
 
 /* CRT Effect */
@@ -260,7 +265,7 @@ body {
     );
   animation: flicker 0.15s infinite;
   z-index: 2;
-  border-radius: 8px;
+  border-radius: 12% / 10%;
 }
 
 @keyframes flicker {
@@ -269,24 +274,25 @@ body {
   100% { opacity: 0.96; }
 }
 
-/* Subtle vignette for depth */
+/* Vignette padding effect */
 #terminal-content::before {
   content: '';
   position: absolute;
-  top: -5%;
-  left: -5%;
-  width: 110%;
-  height: 110%;
+  top: -8%;
+  left: -8%;
+  width: 116%;
+  height: 116%;
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.15) 75%,
-    rgba(0, 0, 0, 0.4) 95%
+    transparent 45%,
+    rgba(0, 0, 0, 0.2) 65%,
+    rgba(0, 0, 0, 0.5) 85%,
+    rgba(0, 0, 0, 0.8) 98%
   );
   pointer-events: none;
   z-index: 10;
-  border-radius: 8px;
+  border-radius: 12% / 10%;
 }
 
 /* Terminal Content */
@@ -294,8 +300,8 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  padding: 20px;
-  padding-right: 10px;
+  padding: 50px 60px;
+  padding-right: 50px;
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 1;
@@ -303,17 +309,20 @@ body {
   line-height: 1.5;
   word-wrap: break-word;
   white-space: pre-wrap;
+  box-sizing: border-box;
 }
 
 /* Custom Scrollbar for Terminal */
 #terminal-content::-webkit-scrollbar {
-  width: 12px;
+  width: 14px;
   background: rgba(0, 0, 0, 0.3);
+  border-radius: 0;
 }
 
 #terminal-content::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.5);
   border-left: 1px solid rgba(0, 255, 0, 0.3);
+  margin: 50px 0;
 }
 
 #terminal-content::-webkit-scrollbar-thumb {
@@ -487,8 +496,8 @@ a:hover {
 
   #terminal-content {
     font-size: 14px;
-    padding: 15px;
-    padding-right: 8px;
+    padding: 40px 45px;
+    padding-right: 35px;
   }
 
   .nav-menu {
@@ -530,8 +539,8 @@ a:hover {
   
   #terminal-content {
     font-size: 12px;
-    padding: 10px;
-    padding-right: 6px;
+    padding: 30px 35px;
+    padding-right: 25px;
   }
 
   .nav-btn {
