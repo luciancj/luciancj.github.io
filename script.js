@@ -1,9 +1,11 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+import { ScreenRenderEngine } from './renderEngine.js';
 
 // Terminal State
 let commandHistory = [];
 let historyIndex = -1;
 let currentPath = '~';
+let renderEngine = null;
 
 // DOM Elements
 const terminalOutput = document.getElementById('terminal-output');
@@ -371,7 +373,7 @@ function showTree() {
 }
 
 // ===== THREE.JS / WEBGL BACKGROUND =====
-function initWebGL() {
+async function initWebGL() {
   const canvas = document.querySelector('.webgl');
   const scene = new THREE.Scene();
   
@@ -392,6 +394,11 @@ function initWebGL() {
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  
+  // Initialize screen render engine with CRT effects
+  const terminalContent = document.getElementById('terminal-content');
+  renderEngine = new ScreenRenderEngine(renderer, 512, 512);
+  await renderEngine.createScreenMesh(terminalContent);
   
   // Create geometric shapes
   const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
@@ -433,6 +440,11 @@ function initWebGL() {
     
     // Rotate particles
     particlesMesh.rotation.y = elapsedTime * 0.05;
+    
+    // Render with CRT effects
+    if (renderEngine) {
+      renderEngine.render();
+    }
     
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
