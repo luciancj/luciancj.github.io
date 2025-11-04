@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lucian Cojocaru - Retro Terminal</title>
+    <meta
+      name="description"
+      content="Lucian Cojocaru's interactive retro computer portfolio website"
+    />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+    <canvas class="webgl"></canvas>
+    
+    <div id="loading">
+      <h2>BOOTING SYSTEM...</h2>
+      <div id="loading-bar">
+        <div id="loading-bar-progress"></div>
+      </div>
+      <div id="loading-text">Initializing retro terminal...</div>
+    </div>
+
+    <div id="terminal-container">
+      <div id="crt-effect"></div>
+      <div id="terminal-content">
+        <div id="terminal-output"></div>
+        <div id="terminal-input-line">
+          <span class="prompt">visitor@lucian:~$</span>
+          <input type="text" id="terminal-input" autofocus autocomplete="off" spellcheck="false">
+          <span class="cursor">█</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <button class="nav-btn" onclick="executeCommand('help')">HELP</button>
+      <button class="nav-btn" onclick="executeCommand('about')">ABOUT</button>
+      <button class="nav-btn" onclick="executeCommand('projects')">PROJECTS</button>
+      <button class="nav-btn" onclick="executeCommand('contact')">CONTACT</button>
+      <button class="nav-btn" onclick="executeCommand('clear')">CLEAR</button>
+    </nav>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
