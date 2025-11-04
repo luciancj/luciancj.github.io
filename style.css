@@ -94,59 +94,54 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  perspective: 800px;
+  perspective: 1200px;
   z-index: 10;
 }
 
 #monitor-bezel {
-  background: 
-    linear-gradient(145deg, #d4d0c8, #a8a49a),
-    linear-gradient(90deg, #bfbbb3 0%, #d4d0c8 50%, #bfbbb3 100%);
-  padding: 45px 40px 40px 40px;
-  border-radius: 30px 30px 5px 5px;
+  background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+  padding: 35px;
+  border-radius: 15px;
   box-shadow: 
-    0 30px 80px rgba(0, 0, 0, 0.9),
-    inset 0 -8px 15px rgba(0, 0, 0, 0.4),
-    inset 0 8px 15px rgba(255, 255, 255, 0.3),
-    inset 3px 0 10px rgba(0, 0, 0, 0.2),
-    inset -3px 0 10px rgba(0, 0, 0, 0.2);
+    0 25px 70px rgba(0, 0, 0, 0.9),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.6),
+    inset 0 5px 10px rgba(255, 255, 255, 0.05);
   position: relative;
-  transform: rotateX(5deg);
+  transform: rotateX(3deg);
   transform-style: preserve-3d;
-  border: 3px solid #8b8680;
+  border: 2px solid #0a0a0a;
 }
 
 #monitor-bezel::before {
-  content: 'RETRO-TERM 1985';
+  content: 'LUCIAN-OS TERMINAL';
   position: absolute;
-  top: 12px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
   font-family: 'VT323', monospace;
-  font-size: 1rem;
-  color: #4a4a4a;
-  letter-spacing: 3px;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  color: #444;
+  letter-spacing: 2px;
 }
 
 #monitor-bezel::after {
   content: '';
   position: absolute;
-  bottom: 12px;
-  right: 20px;
-  width: 12px;
-  height: 12px;
+  bottom: 10px;
+  right: 18px;
+  width: 10px;
+  height: 10px;
   background: #00ff00;
   border-radius: 50%;
   box-shadow: 
     0 0 10px #00ff00,
-    inset 0 2px 3px rgba(255, 255, 255, 0.5);
+    0 0 20px rgba(0, 255, 0, 0.5);
   animation: power-led 2s infinite;
 }
 
 @keyframes power-led {
-  0%, 100% { opacity: 1; box-shadow: 0 0 15px #00ff00, inset 0 2px 3px rgba(255, 255, 255, 0.5); }
-  50% { opacity: 0.7; box-shadow: 0 0 5px #00ff00, inset 0 2px 3px rgba(255, 255, 255, 0.5); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 #monitor-screen {
@@ -154,49 +149,33 @@ body {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 
-    inset 0 0 30px rgba(0, 0, 0, 0.9),
-    inset 0 0 60px rgba(0, 255, 0, 0.15);
-  border: 2px solid #1a1a1a;
+    inset 0 0 25px rgba(0, 0, 0, 0.8),
+    inset 0 0 50px rgba(0, 255, 0, 0.1);
 }
 
 #monitor-stand {
-  width: 280px;
-  height: 60px;
-  background: 
-    linear-gradient(145deg, #bfbbb3, #8b8680),
-    linear-gradient(90deg, #8b8680 0%, #bfbbb3 50%, #8b8680 100%);
-  margin: 25px auto 0;
-  border-radius: 5px 5px 15px 15px;
+  width: 240px;
+  height: 50px;
+  background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+  margin: 20px auto 0;
+  border-radius: 5px 5px 12px 12px;
   box-shadow: 
-    0 15px 30px rgba(0, 0, 0, 0.6),
-    inset 0 3px 8px rgba(255, 255, 255, 0.3),
-    inset 0 -3px 8px rgba(0, 0, 0, 0.3);
+    0 12px 25px rgba(0, 0, 0, 0.7),
+    inset 0 2px 5px rgba(255, 255, 255, 0.05);
   position: relative;
-  transform: translateZ(-30px) rotateX(-5deg);
-  border: 2px solid #8b8680;
+  transform: translateZ(-25px);
 }
 
 #monitor-stand::before {
   content: '';
   position: absolute;
-  bottom: -40px;
+  bottom: -35px;
   left: 50%;
   transform: translateX(-50%);
-  width: 350px;
-  height: 40px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4), transparent);
+  width: 300px;
+  height: 35px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5), transparent);
   border-radius: 50%;
-}
-
-#monitor-stand::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60%;
-  height: 30%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
 /* Terminal Container - Now inside monitor */
@@ -208,40 +187,39 @@ body {
   max-height: 600px;
   background: var(--terminal-bg);
   overflow: hidden;
+  border-radius: 8px;
   
-  /* EXTREME CRT Bulge Effect - Very Visible! */
-  border-radius: 50% / 60%;
+  /* Visible but tasteful CRT Bulge Effect */
   transform: 
-    perspective(600px)
-    translateZ(50px)
-    scale3d(1.08, 1.12, 1);
+    perspective(800px)
+    translateZ(30px);
   transform-style: preserve-3d;
   
-  /* Massive glass bulge simulation */
+  /* Glass bulge simulation with vignette */
   box-shadow: 
-    inset 0 0 150px rgba(0, 255, 0, 0.08),
-    inset 0 0 80px rgba(0, 0, 0, 0.6),
-    inset -20px -20px 60px rgba(0, 0, 0, 0.4),
-    inset 20px 20px 60px rgba(255, 255, 255, 0.05);
+    inset 0 0 100px rgba(0, 255, 0, 0.05),
+    inset 0 0 60px rgba(0, 0, 0, 0.5),
+    inset 0 10px 30px rgba(0, 0, 0, 0.4),
+    inset 0 -10px 30px rgba(0, 0, 0, 0.4);
 }
 
 #terminal-container::before {
   content: '';
   position: absolute;
-  top: 5%;
-  left: 5%;
-  width: 90%;
-  height: 90%;
+  top: 8%;
+  left: 8%;
+  width: 40%;
+  height: 40%;
   background: radial-gradient(
-    ellipse at 35% 35%,
-    rgba(255, 255, 255, 0.15) 0%,
-    rgba(255, 255, 255, 0.05) 20%,
-    transparent 50%
+    ellipse at center,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    transparent 70%
   );
   pointer-events: none;
   z-index: 3;
-  border-radius: 50% / 60%;
-  mix-blend-mode: screen;
+  border-radius: 50%;
+  filter: blur(10px);
 }
 
 #terminal-container::after {
@@ -254,14 +232,14 @@ body {
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
-    transparent 40%,
-    rgba(0, 0, 0, 0.3) 60%,
-    rgba(0, 0, 0, 0.7) 85%,
-    rgba(0, 0, 0, 0.95) 100%
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 70%,
+    rgba(0, 0, 0, 0.6) 90%,
+    rgba(0, 0, 0, 0.9) 100%
   );
   pointer-events: none;
   z-index: 4;
-  border-radius: 50% / 60%;
+  border-radius: 8px;
 }
 
 /* CRT Effect */
@@ -275,48 +253,40 @@ body {
   background: 
     repeating-linear-gradient(
       0deg,
-      rgba(0, 0, 0, 0.2) 0px,
+      rgba(0, 0, 0, 0.15) 0px,
       transparent 1px,
       transparent 2px,
-      rgba(0, 0, 0, 0.2) 3px
+      rgba(0, 0, 0, 0.15) 3px
     );
   animation: flicker 0.15s infinite;
   z-index: 2;
-  border-radius: 50% / 60%;
-  
-  /* Add the bulge distortion effect */
-  transform: scale(1.05);
-  filter: 
-    contrast(1.15) 
-    brightness(1.08);
+  border-radius: 8px;
 }
 
 @keyframes flicker {
-  0% { opacity: 0.93; }
-  50% { opacity: 0.97; }
-  100% { opacity: 0.94; }
+  0% { opacity: 0.95; }
+  50% { opacity: 0.98; }
+  100% { opacity: 0.96; }
 }
 
-/* Extreme vignette effect for CRT bulge */
+/* Subtle vignette for depth */
 #terminal-content::before {
   content: '';
   position: absolute;
-  top: -10%;
-  left: -10%;
-  width: 120%;
-  height: 120%;
+  top: -5%;
+  left: -5%;
+  width: 110%;
+  height: 110%;
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
-    transparent 30%,
-    rgba(0, 0, 0, 0.2) 50%,
-    rgba(0, 0, 0, 0.5) 70%,
-    rgba(0, 0, 0, 0.85) 90%,
-    rgba(0, 0, 0, 0.95) 100%
+    transparent 50%,
+    rgba(0, 0, 0, 0.15) 75%,
+    rgba(0, 0, 0, 0.4) 95%
   );
   pointer-events: none;
   z-index: 10;
-  border-radius: 50% / 60%;
+  border-radius: 8px;
 }
 
 /* Terminal Content */
@@ -331,10 +301,6 @@ body {
   z-index: 1;
   font-size: 16px;
   line-height: 1.5;
-  
-  /* Subtle barrel distortion for CRT effect */
-  transform: scale(0.96);
-  filter: contrast(1.08) brightness(1.04);
   word-wrap: break-word;
   white-space: pre-wrap;
 }
@@ -510,12 +476,7 @@ a:hover {
 /* Responsive */
 @media (max-width: 768px) {
   #monitor-bezel {
-    padding: 35px 30px 30px 30px;
-    border-radius: 25px 25px 5px 5px;
-  }
-  
-  #monitor-bezel::before {
-    font-size: 0.85rem;
+    padding: 25px;
   }
   
   #terminal-container {
@@ -548,27 +509,18 @@ a:hover {
   }
   
   #monitor-stand {
-    width: 220px;
-    height: 50px;
+    width: 200px;
+    height: 40px;
   }
 }
 
 @media (max-width: 480px) {
   #monitor-bezel {
-    padding: 25px 20px 20px 20px;
-    border-radius: 20px 20px 5px 5px;
+    padding: 20px;
   }
   
   #monitor-bezel::before {
     font-size: 0.7rem;
-    letter-spacing: 1px;
-  }
-  
-  #monitor-bezel::after {
-    width: 10px;
-    height: 10px;
-    right: 15px;
-    bottom: 10px;
   }
   
   #terminal-container {
@@ -588,7 +540,7 @@ a:hover {
   }
   
   #monitor-stand {
-    width: 180px;
-    height: 40px;
+    width: 160px;
+    height: 35px;
   }
 }
