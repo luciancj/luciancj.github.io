@@ -132,13 +132,14 @@ function displayWelcome() {
     top: 20px;
     left: 20px;
     right: 20px;
+    bottom: 20px;
     color: #00ff00;
     font-family: 'VT323', monospace;
     font-size: 1.2rem;
     line-height: 1.6;
     z-index: 100;
     text-shadow: 0 0 10px rgba(0,255,0,0.5);
-    pointer-events: none;
+    overflow-y: auto;
   `;
   
   welcomeText.innerHTML = `
@@ -152,7 +153,7 @@ function displayWelcome() {
 </pre>
 
 <div style="margin-top: 20px; color: #00ff00;">
-<span style="color: #00ff00; font-weight: bold;">SYSTEM READY - LUCIAN-OS v1.0.0</span>
+<span style="font-weight: bold;">SYSTEM READY - LUCIAN-OS v1.0.0</span>
 </div>
 
 <div style="margin-top: 15px; color: #00ff00;">
@@ -160,17 +161,111 @@ Welcome to my interactive retro terminal portfolio!
 </div>
 
 <div style="margin-top: 10px; color: #00ff88;">
-<strong>Available commands:</strong> help | about | projects | contact
+<strong>Available commands:</strong> help | about | projects | contact | clear
 </div>
 
 <div style="margin-top: 20px; color: #00ff00;">
-<span style="color: #888;">visitor@lucian:~$</span> <span style="animation: blink 1s infinite;">_</span>
+<div id="output"></div>
+<div style="display: flex; align-items: center;">
+<span style="color: #888;">visitor@lucian:~$</span>&nbsp;
+<input type="text" id="command-input" 
+  style="flex: 1; background: transparent; border: none; outline: none; color: #00ff00; font-family: 'VT323', monospace; font-size: 1.2rem;" 
+  autofocus />
+</div>
 </div>
   `;
   
   terminalContainer.appendChild(welcomeText);
   console.log('Welcome text added to container');
   console.log('terminalContainer children:', terminalContainer.children.length);
+  
+  // Setup command input
+  const commandInput = document.getElementById('command-input');
+  const output = document.getElementById('output');
+  
+  if (commandInput) {
+    commandInput.focus();
+    commandInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const command = commandInput.value.trim();
+        if (command) {
+          handleCommand(command, output);
+        }
+        commandInput.value = '';
+      }
+    });
+    
+    // Keep input focused
+    document.addEventListener('click', () => commandInput.focus());
+  }
+}
+
+function handleCommand(command, output) {
+  const line = document.createElement('div');
+  line.style.marginTop = '10px';
+  line.style.color = '#00ff00';
+  
+  line.innerHTML = `<div style="color: #888;">visitor@lucian:~$ ${command}</div>`;
+  
+  const response = document.createElement('div');
+  response.style.marginTop = '5px';
+  
+  switch(command.toLowerCase()) {
+    case 'help':
+      response.innerHTML = `
+<div style="color: #00ff00;">Available commands:</div>
+<div style="margin-left: 20px;">
+  <div><span style="color: #00ff88;">help</span> - Show this help message</div>
+  <div><span style="color: #00ff88;">about</span> - About me</div>
+  <div><span style="color: #00ff88;">projects</span> - My projects</div>
+  <div><span style="color: #00ff88;">contact</span> - Contact information</div>
+  <div><span style="color: #00ff88;">clear</span> - Clear terminal</div>
+</div>`;
+      break;
+      
+    case 'about':
+      response.innerHTML = `
+<div style="color: #00ff00;">ABOUT LUCIAN COJOCARU</div>
+<div style="margin-top: 10px;">
+  Developer | Tech Enthusiast | Retro Computing Fan
+</div>
+<div style="margin-top: 10px;">
+  Passionate about creating unique, interactive web experiences.
+</div>`;
+      break;
+      
+    case 'projects':
+      response.innerHTML = `
+<div style="color: #00ff00;">MY PROJECTS</div>
+<div style="margin-top: 10px;">
+  <div>→ Retro Terminal Portfolio (you're here!)</div>
+  <div>→ More coming soon...</div>
+</div>`;
+      break;
+      
+    case 'contact':
+      response.innerHTML = `
+<div style="color: #00ff00;">CONTACT</div>
+<div style="margin-top: 10px;">
+  <div>→ GitHub: github.com/luciancj</div>
+  <div>→ Email: [your email]</div>
+</div>`;
+      break;
+      
+    case 'clear':
+      output.innerHTML = '';
+      return;
+      
+    default:
+      response.innerHTML = `<div style="color: #ff4444;">Command not found: ${command}</div>
+<div style="color: #888;">Type 'help' for available commands</div>`;
+  }
+  
+  line.appendChild(response);
+  output.appendChild(line);
+  
+  // Scroll to bottom
+  output.parentElement.scrollTop = output.parentElement.scrollHeight;
 }
 
 // Command execution temporarily disabled for WebGL-only mode
