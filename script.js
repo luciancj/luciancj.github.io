@@ -60,7 +60,9 @@ function simulateLoading() {
       setTimeout(() => {
         loading.classList.add('hidden');
         console.log('Loading screen hidden');
+        console.log('About to call displayWelcome()');
         displayWelcome();
+        console.log('displayWelcome() completed');
       }, 500);
     }
   }, 400);
@@ -112,25 +114,35 @@ function handleKeyDown(e) {
 
 function displayWelcome() {
   console.log('Terminal ready - WebGL mode');
+  console.log('displayWelcome() START');
   
   // Add visible welcome text to the terminal container
   const terminalContainer = document.getElementById('terminal-container');
+  console.log('terminalContainer:', terminalContainer);
+  
+  if (!terminalContainer) {
+    console.error('terminal-container not found!');
+    return;
+  }
+  
   const welcomeText = document.createElement('div');
+  welcomeText.id = 'welcome-text';
   welcomeText.style.cssText = `
     position: absolute;
     top: 20px;
     left: 20px;
     right: 20px;
-    color: var(--terminal-green);
+    color: #00ff00;
     font-family: 'VT323', monospace;
     font-size: 1.2rem;
     line-height: 1.6;
     z-index: 100;
-    text-shadow: 0 0 10px var(--glow-color);
+    text-shadow: 0 0 10px rgba(0,255,0,0.5);
+    pointer-events: none;
   `;
   
   welcomeText.innerHTML = `
-<pre style="margin: 0;">
+<pre style="margin: 0; color: #00ff00;">
 ██╗  ██╗███████╗██╗     ██╗      ██████╗ 
 ██║  ██║██╔════╝██║     ██║     ██╔═══██╗
 ███████║█████╗  ██║     ██║     ██║   ██║
@@ -139,11 +151,11 @@ function displayWelcome() {
 ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝ ╚═════╝ 
 </pre>
 
-<div style="margin-top: 20px;">
+<div style="margin-top: 20px; color: #00ff00;">
 <span style="color: #00ff00; font-weight: bold;">SYSTEM READY - LUCIAN-OS v1.0.0</span>
 </div>
 
-<div style="margin-top: 15px;">
+<div style="margin-top: 15px; color: #00ff00;">
 Welcome to my interactive retro terminal portfolio!
 </div>
 
@@ -151,12 +163,14 @@ Welcome to my interactive retro terminal portfolio!
 <strong>Available commands:</strong> help | about | projects | contact
 </div>
 
-<div style="margin-top: 20px;">
+<div style="margin-top: 20px; color: #00ff00;">
 <span style="color: #888;">visitor@lucian:~$</span> <span style="animation: blink 1s infinite;">_</span>
 </div>
   `;
   
   terminalContainer.appendChild(welcomeText);
+  console.log('Welcome text added to container');
+  console.log('terminalContainer children:', terminalContainer.children.length);
 }
 
 // Command execution temporarily disabled for WebGL-only mode
