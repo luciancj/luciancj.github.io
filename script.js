@@ -112,7 +112,51 @@ function handleKeyDown(e) {
 
 function displayWelcome() {
   console.log('Terminal ready - WebGL mode');
-  // Welcome message will be handled by WebGL rendering
+  
+  // Add visible welcome text to the terminal container
+  const terminalContainer = document.getElementById('terminal-container');
+  const welcomeText = document.createElement('div');
+  welcomeText.style.cssText = `
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    color: var(--terminal-green);
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    z-index: 100;
+    text-shadow: 0 0 10px var(--glow-color);
+  `;
+  
+  welcomeText.innerHTML = `
+<pre style="margin: 0;">
+██╗  ██╗███████╗██╗     ██╗      ██████╗ 
+██║  ██║██╔════╝██║     ██║     ██╔═══██╗
+███████║█████╗  ██║     ██║     ██║   ██║
+██╔══██║██╔══╝  ██║     ██║     ██║   ██║
+██║  ██║███████╗███████╗███████╗╚██████╔╝
+╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝ ╚═════╝ 
+</pre>
+
+<div style="margin-top: 20px;">
+<span style="color: #00ff00; font-weight: bold;">SYSTEM READY - LUCIAN-OS v1.0.0</span>
+</div>
+
+<div style="margin-top: 15px;">
+Welcome to my interactive retro terminal portfolio!
+</div>
+
+<div style="margin-top: 10px; color: #00ff88;">
+<strong>Available commands:</strong> help | about | projects | contact
+</div>
+
+<div style="margin-top: 20px;">
+<span style="color: #888;">visitor@lucian:~$</span> <span style="animation: blink 1s infinite;">_</span>
+</div>
+  `;
+  
+  terminalContainer.appendChild(welcomeText);
 }
 
 // Command execution temporarily disabled for WebGL-only mode
