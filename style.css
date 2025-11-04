@@ -94,81 +94,109 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  perspective: 1500px;
+  perspective: 800px;
   z-index: 10;
 }
 
 #monitor-bezel {
-  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-  padding: 30px;
-  border-radius: 20px;
+  background: 
+    linear-gradient(145deg, #d4d0c8, #a8a49a),
+    linear-gradient(90deg, #bfbbb3 0%, #d4d0c8 50%, #bfbbb3 100%);
+  padding: 45px 40px 40px 40px;
+  border-radius: 30px 30px 5px 5px;
   box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.8),
-    inset 0 -5px 10px rgba(0, 0, 0, 0.5),
-    inset 0 5px 10px rgba(255, 255, 255, 0.1);
+    0 30px 80px rgba(0, 0, 0, 0.9),
+    inset 0 -8px 15px rgba(0, 0, 0, 0.4),
+    inset 0 8px 15px rgba(255, 255, 255, 0.3),
+    inset 3px 0 10px rgba(0, 0, 0, 0.2),
+    inset -3px 0 10px rgba(0, 0, 0, 0.2);
   position: relative;
-  transform: rotateX(2deg);
+  transform: rotateX(5deg);
   transform-style: preserve-3d;
+  border: 3px solid #8b8680;
 }
 
 #monitor-bezel::before {
-  content: 'LUCIAN-TERM 3000';
+  content: 'RETRO-TERM 1985';
   position: absolute;
-  top: 8px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   font-family: 'VT323', monospace;
-  font-size: 0.8rem;
-  color: #666;
-  letter-spacing: 2px;
+  font-size: 1rem;
+  color: #4a4a4a;
+  letter-spacing: 3px;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 #monitor-bezel::after {
-  content: '⚫';
+  content: '';
   position: absolute;
-  bottom: 8px;
-  right: 15px;
-  font-size: 0.8rem;
-  color: #00ff00;
-  text-shadow: 0 0 10px #00ff00;
+  bottom: 12px;
+  right: 20px;
+  width: 12px;
+  height: 12px;
+  background: #00ff00;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 10px #00ff00,
+    inset 0 2px 3px rgba(255, 255, 255, 0.5);
   animation: power-led 2s infinite;
 }
 
 @keyframes power-led {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 1; box-shadow: 0 0 15px #00ff00, inset 0 2px 3px rgba(255, 255, 255, 0.5); }
+  50% { opacity: 0.7; box-shadow: 0 0 5px #00ff00, inset 0 2px 3px rgba(255, 255, 255, 0.5); }
 }
 
 #monitor-screen {
   position: relative;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 
-    inset 0 0 20px rgba(0, 0, 0, 0.8),
-    inset 0 0 40px rgba(0, 255, 0, 0.1);
+    inset 0 0 30px rgba(0, 0, 0, 0.9),
+    inset 0 0 60px rgba(0, 255, 0, 0.15);
+  border: 2px solid #1a1a1a;
 }
 
 #monitor-stand {
-  width: 200px;
-  height: 40px;
-  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-  margin: 20px auto 0;
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  width: 280px;
+  height: 60px;
+  background: 
+    linear-gradient(145deg, #bfbbb3, #8b8680),
+    linear-gradient(90deg, #8b8680 0%, #bfbbb3 50%, #8b8680 100%);
+  margin: 25px auto 0;
+  border-radius: 5px 5px 15px 15px;
+  box-shadow: 
+    0 15px 30px rgba(0, 0, 0, 0.6),
+    inset 0 3px 8px rgba(255, 255, 255, 0.3),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.3);
   position: relative;
-  transform: translateZ(-20px);
+  transform: translateZ(-30px) rotateX(-5deg);
+  border: 2px solid #8b8680;
 }
 
 #monitor-stand::before {
   content: '';
   position: absolute;
-  bottom: -30px;
+  bottom: -40px;
   left: 50%;
   transform: translateX(-50%);
-  width: 250px;
-  height: 30px;
-  background: radial-gradient(ellipse at center, #1a1a1a, transparent);
+  width: 350px;
+  height: 40px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4), transparent);
   border-radius: 50%;
+}
+
+#monitor-stand::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
 /* Terminal Container - Now inside monitor */
@@ -181,35 +209,39 @@ body {
   background: var(--terminal-bg);
   overflow: hidden;
   
-  /* Enhanced CRT Bulge Effect */
+  /* EXTREME CRT Bulge Effect - Very Visible! */
+  border-radius: 50% / 60%;
   transform: 
-    perspective(1000px)
-    translateZ(0);
+    perspective(600px)
+    translateZ(50px)
+    scale3d(1.08, 1.12, 1);
   transform-style: preserve-3d;
   
-  /* Glass bulge simulation */
+  /* Massive glass bulge simulation */
   box-shadow: 
-    inset 0 0 100px rgba(0, 255, 0, 0.03),
-    inset 0 0 50px rgba(0, 0, 0, 0.5);
+    inset 0 0 150px rgba(0, 255, 0, 0.08),
+    inset 0 0 80px rgba(0, 0, 0, 0.6),
+    inset -20px -20px 60px rgba(0, 0, 0, 0.4),
+    inset 20px 20px 60px rgba(255, 255, 255, 0.05);
 }
 
 #terminal-container::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
   background: radial-gradient(
-    ellipse at center,
-    transparent 0%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.3) 70%,
-    rgba(0, 0, 0, 0.7) 100%
+    ellipse at 35% 35%,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 20%,
+    transparent 50%
   );
   pointer-events: none;
   z-index: 3;
-  border-radius: 10px;
+  border-radius: 50% / 60%;
+  mix-blend-mode: screen;
 }
 
 #terminal-container::after {
@@ -219,16 +251,17 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 255, 255, 0.05) 0%,
-      transparent 60%
-    );
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.3) 60%,
+    rgba(0, 0, 0, 0.7) 85%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
   pointer-events: none;
   z-index: 4;
-  border-radius: 10px;
-  mix-blend-mode: screen;
+  border-radius: 50% / 60%;
 }
 
 /* CRT Effect */
@@ -242,46 +275,48 @@ body {
   background: 
     repeating-linear-gradient(
       0deg,
-      rgba(0, 0, 0, 0.15) 0px,
+      rgba(0, 0, 0, 0.2) 0px,
       transparent 1px,
       transparent 2px,
-      rgba(0, 0, 0, 0.15) 3px
+      rgba(0, 0, 0, 0.2) 3px
     );
   animation: flicker 0.15s infinite;
   z-index: 2;
+  border-radius: 50% / 60%;
   
   /* Add the bulge distortion effect */
-  transform: scale(1.02);
+  transform: scale(1.05);
   filter: 
-    contrast(1.1) 
-    brightness(1.05);
+    contrast(1.15) 
+    brightness(1.08);
 }
 
 @keyframes flicker {
-  0% { opacity: 0.95; }
-  50% { opacity: 0.98; }
-  100% { opacity: 0.96; }
+  0% { opacity: 0.93; }
+  50% { opacity: 0.97; }
+  100% { opacity: 0.94; }
 }
 
-/* Vignette effect for CRT bulge */
+/* Extreme vignette effect for CRT bulge */
 #terminal-content::before {
   content: '';
   position: absolute;
-  top: -5%;
-  left: -5%;
-  width: 110%;
-  height: 110%;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
-    transparent 40%,
-    rgba(0, 0, 0, 0.1) 60%,
-    rgba(0, 0, 0, 0.4) 85%,
-    rgba(0, 0, 0, 0.8) 100%
+    transparent 30%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.5) 70%,
+    rgba(0, 0, 0, 0.85) 90%,
+    rgba(0, 0, 0, 0.95) 100%
   );
   pointer-events: none;
   z-index: 10;
-  border-radius: 10px;
+  border-radius: 50% / 60%;
 }
 
 /* Terminal Content */
@@ -290,27 +325,59 @@ body {
   width: 100%;
   height: 100%;
   padding: 20px;
+  padding-right: 10px;
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 1;
   font-size: 16px;
   line-height: 1.5;
   
   /* Subtle barrel distortion for CRT effect */
-  transform: scale(0.98);
-  filter: contrast(1.05) brightness(1.02);
+  transform: scale(0.96);
+  filter: contrast(1.08) brightness(1.04);
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
+/* Custom Scrollbar for Terminal */
 #terminal-content::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 #terminal-content::-webkit-scrollbar-track {
-  background: rgba(0, 255, 0, 0.1);
+  background: rgba(0, 0, 0, 0.5);
+  border-left: 1px solid rgba(0, 255, 0, 0.3);
 }
 
 #terminal-content::-webkit-scrollbar-thumb {
-  background: var(--terminal-green);
-  border-radius: 4px;
+  background: linear-gradient(180deg, 
+    rgba(0, 255, 0, 0.6),
+    rgba(0, 255, 0, 0.8),
+    rgba(0, 255, 0, 0.6)
+  );
+  border-radius: 2px;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  box-shadow: 
+    inset 0 0 6px rgba(0, 255, 0, 0.4),
+    0 0 6px rgba(0, 255, 0, 0.3);
+}
+
+#terminal-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, 
+    rgba(0, 255, 0, 0.8),
+    rgba(0, 255, 0, 1),
+    rgba(0, 255, 0, 0.8)
+  );
+  box-shadow: 
+    inset 0 0 8px rgba(0, 255, 0, 0.6),
+    0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+/* Firefox scrollbar */
+#terminal-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 0, 0.7) rgba(0, 0, 0, 0.5);
 }
 
 #terminal-output {
@@ -443,7 +510,12 @@ a:hover {
 /* Responsive */
 @media (max-width: 768px) {
   #monitor-bezel {
-    padding: 20px;
+    padding: 35px 30px 30px 30px;
+    border-radius: 25px 25px 5px 5px;
+  }
+  
+  #monitor-bezel::before {
+    font-size: 0.85rem;
   }
   
   #terminal-container {
@@ -455,6 +527,7 @@ a:hover {
   #terminal-content {
     font-size: 14px;
     padding: 15px;
+    padding-right: 8px;
   }
 
   .nav-menu {
@@ -475,19 +548,27 @@ a:hover {
   }
   
   #monitor-stand {
-    width: 150px;
-    height: 30px;
+    width: 220px;
+    height: 50px;
   }
 }
 
 @media (max-width: 480px) {
   #monitor-bezel {
-    padding: 15px;
-    border-radius: 15px;
+    padding: 25px 20px 20px 20px;
+    border-radius: 20px 20px 5px 5px;
   }
   
   #monitor-bezel::before {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+  }
+  
+  #monitor-bezel::after {
+    width: 10px;
+    height: 10px;
+    right: 15px;
+    bottom: 10px;
   }
   
   #terminal-container {
@@ -498,6 +579,7 @@ a:hover {
   #terminal-content {
     font-size: 12px;
     padding: 10px;
+    padding-right: 6px;
   }
 
   .nav-btn {
@@ -506,7 +588,7 @@ a:hover {
   }
   
   #monitor-stand {
-    width: 120px;
-    height: 25px;
+    width: 180px;
+    height: 40px;
   }
 }
