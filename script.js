@@ -1,6 +1,10 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
 import { CRTShaderEffect } from './crtShader.js';
 
+console.log('Script.js loaded successfully');
+console.log('THREE imported:', typeof THREE);
+console.log('CRTShaderEffect imported:', typeof CRTShaderEffect);
+
 // Terminal State
 let commandHistory = [];
 let historyIndex = -1;
@@ -13,10 +17,17 @@ const loading = document.getElementById('loading');
 const loadingProgress = document.getElementById('loading-bar-progress');
 const loadingText = document.getElementById('loading-text');
 
+console.log('DOM elements:', { textarea, loading, loadingProgress, loadingText });
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  initWebGL();
-  simulateLoading();
+  console.log('DOMContentLoaded fired');
+  try {
+    initWebGL();
+    simulateLoading();
+  } catch (error) {
+    console.error('Initialization error:', error);
+  }
 });
 
 // ===== LOADING SIMULATION =====

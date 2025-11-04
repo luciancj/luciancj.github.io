@@ -49,11 +49,16 @@
       <button class="nav-btn" id="clear-btn">CLEAR</button>
     </nav>
 
-    <!-- Temporarily comment out script to test HTML loading -->
-    <!-- <script type="module" src="script.js"></script> -->
+    <script type="module" src="script.js" onerror="console.error('Failed to load script.js')"></script>
     <script>
-      console.log('HTML loaded successfully');
-      console.log('Body content:', document.body.innerHTML.substring(0, 100));
+      // Catch module loading errors
+      window.addEventListener('error', (e) => {
+        console.error('Global error:', e.message, e.filename, e.lineno);
+      });
+      
+      window.addEventListener('unhandledrejection', (e) => {
+        console.error('Unhandled promise rejection:', e.reason);
+      });
     </script>
   </body>
 </html>
