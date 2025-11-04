@@ -8,22 +8,15 @@ let currentPath = '~';
 let crtEffect = null;
 
 // DOM Elements
-const terminalOutput = document.getElementById('terminal-output');
-const terminalInput = document.getElementById('terminal-input');
+const textarea = document.getElementById('textarea');
 const loading = document.getElementById('loading');
 const loadingProgress = document.getElementById('loading-bar-progress');
 const loadingText = document.getElementById('loading-text');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  initTerminal();
   initWebGL();
   simulateLoading();
-  
-  // Initialize CRT shader effects after loading completes
-  setTimeout(() => {
-    initCRTShader();
-  }, 2500);
 });
 
 // ===== LOADING SIMULATION =====
@@ -53,6 +46,8 @@ function simulateLoading() {
 }
 
 // ===== TERMINAL FUNCTIONS =====
+// Terminal functions temporarily disabled for WebGL-only mode
+/*
 function initTerminal() {
   terminalInput.addEventListener('keydown', handleKeyDown);
   terminalInput.focus();
@@ -92,34 +87,15 @@ function handleKeyDown(e) {
     // Auto-complete functionality could go here
   }
 }
+*/
 
 function displayWelcome() {
-  const welcome = `
-██╗  ██╗███████╗██╗     ██╗      ██████╗          
-██║  ██║██╔════╝██║     ██║     ██╔═══██╗         
-███████║█████╗  ██║     ██║     ██║   ██║         
-██╔══██║██╔══╝  ██║     ██║     ██║   ██║         
-██║  ██║███████╗███████╗███████╗╚██████╔╝         
-╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝ ╚═════╝          
-                                                  
-██╗    ██╗ ██████╗ ██████╗ ██╗     ██████╗     ██╗
-██║    ██║██╔═══██╗██╔══██╗██║     ██╔══██╗    ██║
-██║ █╗ ██║██║   ██║██████╔╝██║     ██║  ██║    ██║
-██║███╗██║██║   ██║██╔══██╗██║     ██║  ██║    ╚═╝
-╚███╔███╔╝╚██████╔╝██║  ██║███████╗██████╔╝    ██╗
- ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═════╝     ╚═╝
-
-<span class="info">SYSTEM READY - LUCIAN-OS v1.0.0</span>
-
-Welcome to my interactive retro terminal portfolio!
-
-<span class="success">Type 'help' to see available commands.</span>
-<span class="info">Try: about | projects | skills | contact | clear</span>
-
-`;
-  addOutput(welcome);
+  console.log('Terminal ready - WebGL mode');
+  // Welcome message will be handled by WebGL rendering
 }
 
+// Command execution temporarily disabled for WebGL-only mode
+/*
 function executeCommand(command) {
   const cmd = command.trim().toLowerCase();
   
@@ -474,6 +450,7 @@ function initCRTShader() {
     console.error('CRT shader initialization error:', error);
   }
 }
+*/
 
-// Make executeCommand global for button clicks
-window.executeCommand = executeCommand;
+// Make executeCommand global for button clicks (temporarily disabled)
+// window.executeCommand = executeCommand;
