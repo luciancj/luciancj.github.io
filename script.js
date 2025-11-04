@@ -21,6 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ===== LOADING SIMULATION =====
 function simulateLoading() {
+  console.log('Starting loading simulation...');
+  
+  if (!loading || !loadingProgress || !loadingText) {
+    console.error('Loading elements not found!', { loading, loadingProgress, loadingText });
+    return;
+  }
+  
   const stages = [
     { progress: 20, text: 'Loading system files...' },
     { progress: 40, text: 'Initializing graphics...' },
@@ -32,13 +39,16 @@ function simulateLoading() {
   let currentStage = 0;
   const interval = setInterval(() => {
     if (currentStage < stages.length) {
+      console.log(`Loading stage ${currentStage}: ${stages[currentStage].text}`);
       loadingProgress.style.width = stages[currentStage].progress + '%';
       loadingText.textContent = stages[currentStage].text;
       currentStage++;
     } else {
+      console.log('Loading complete, hiding loading screen...');
       clearInterval(interval);
       setTimeout(() => {
         loading.classList.add('hidden');
+        console.log('Loading screen hidden');
         displayWelcome();
       }, 500);
     }
