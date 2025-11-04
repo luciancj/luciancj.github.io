@@ -185,66 +185,75 @@ body {
   max-width: 900px;
   height: 70vh;
   max-height: 600px;
-  background: var(--terminal-bg);
+  background: #000000;
   overflow: hidden;
   
-  /* Visible CRT Bulge Effect - Curved Glass Screen */
-  border-radius: 12% / 10%;
+  /* CRT Barrel Distortion Effect */
+  border-radius: 8% / 6%;
   transform: 
-    perspective(800px)
-    translateZ(40px);
+    perspective(1000px)
+    translateZ(20px);
   transform-style: preserve-3d;
+  filter: contrast(1.1) brightness(1.05);
   
-  /* Glass bulge simulation with strong vignette */
+  /* Glass CRT screen with depth */
   box-shadow: 
-    inset 0 0 120px rgba(0, 255, 0, 0.06),
-    inset 0 0 80px rgba(0, 0, 0, 0.6),
-    inset 0 15px 40px rgba(0, 0, 0, 0.5),
-    inset 0 -15px 40px rgba(0, 0, 0, 0.5),
-    inset 15px 0 40px rgba(0, 0, 0, 0.4),
-    inset -15px 0 40px rgba(0, 0, 0, 0.4);
+    inset 0 0 150px rgba(0, 20, 0, 0.3),
+    inset 0 0 100px rgba(0, 0, 0, 0.8),
+    inset 0 20px 60px rgba(0, 0, 0, 0.7),
+    inset 0 -20px 60px rgba(0, 0, 0, 0.7),
+    inset 20px 0 60px rgba(0, 0, 0, 0.6),
+    inset -20px 0 60px rgba(0, 0, 0, 0.6);
 }
 
+/* Glass Reflection - Upper Left */
 #terminal-container::before {
   content: '';
   position: absolute;
-  top: 5%;
-  left: 5%;
-  width: 45%;
-  height: 45%;
+  top: 3%;
+  left: 3%;
+  width: 50%;
+  height: 50%;
   background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.18) 0%,
-    rgba(255, 255, 255, 0.08) 20%,
-    rgba(255, 255, 255, 0.02) 40%,
-    transparent 70%
+    ellipse at 20% 20%,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.12) 15%,
+    rgba(255, 255, 255, 0.04) 35%,
+    transparent 65%
   );
   pointer-events: none;
   z-index: 3;
   border-radius: 50%;
-  filter: blur(15px);
+  filter: blur(20px);
   mix-blend-mode: screen;
+  animation: glassShimmer 8s ease-in-out infinite;
 }
 
+@keyframes glassShimmer {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.8; }
+}
+
+/* Heavy Vignette - CRT Edge Darkening */
 #terminal-container::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: -5%;
+  left: -5%;
+  width: 110%;
+  height: 110%;
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
-    transparent 45%,
-    rgba(0, 0, 0, 0.25) 65%,
-    rgba(0, 0, 0, 0.5) 80%,
-    rgba(0, 0, 0, 0.75) 92%,
-    rgba(0, 0, 0, 0.95) 100%
+    transparent 35%,
+    rgba(0, 0, 0, 0.3) 55%,
+    rgba(0, 0, 0, 0.6) 75%,
+    rgba(0, 0, 0, 0.85) 90%,
+    rgba(0, 0, 0, 0.98) 100%
   );
   pointer-events: none;
-  z-index: 4;
-  border-radius: 12% / 10%;
+  z-index: 5;
+  border-radius: 8% / 6%;
 }
 
 /* CRT Effect */
@@ -255,44 +264,55 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background: 
-    repeating-linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.15) 0px,
-      transparent 1px,
-      transparent 2px,
-      rgba(0, 0, 0, 0.15) 3px
-    );
-  animation: flicker 0.15s infinite;
   z-index: 2;
-  border-radius: 12% / 10%;
+  border-radius: 8% / 6%;
+  
+  /* Scanlines */
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.2) 0px,
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 2px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.2) 4px
+  );
+  
+  /* Add phosphor glow */
+  box-shadow: inset 0 0 80px rgba(0, 255, 0, 0.08);
+  animation: flicker 0.15s infinite, crtWobble 8s ease-in-out infinite;
 }
 
 @keyframes flicker {
-  0% { opacity: 0.95; }
+  0% { opacity: 0.94; }
   50% { opacity: 0.98; }
-  100% { opacity: 0.96; }
+  100% { opacity: 0.95; }
 }
 
-/* Vignette padding effect */
+@keyframes crtWobble {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-0.5px); }
+  75% { transform: translateY(0.5px); }
+}
+
+/* Additional inner vignette for content area */
 #terminal-content::before {
   content: '';
   position: absolute;
-  top: -8%;
-  left: -8%;
-  width: 116%;
-  height: 116%;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
   background: radial-gradient(
     ellipse at center,
     transparent 0%,
-    transparent 45%,
-    rgba(0, 0, 0, 0.2) 65%,
-    rgba(0, 0, 0, 0.5) 85%,
-    rgba(0, 0, 0, 0.8) 98%
+    transparent 40%,
+    rgba(0, 0, 0, 0.25) 60%,
+    rgba(0, 0, 0, 0.6) 85%,
+    rgba(0, 0, 0, 0.9) 98%
   );
   pointer-events: none;
   z-index: 10;
-  border-radius: 12% / 10%;
+  border-radius: 8% / 6%;
 }
 
 /* Terminal Content */
