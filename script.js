@@ -1,9 +1,11 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+import { CRTShaderEffect } from './crtShader.js';
 
 // Terminal State
 let commandHistory = [];
 let historyIndex = -1;
 let currentPath = '~';
+let crtEffect = null;
 
 // DOM Elements
 const terminalOutput = document.getElementById('terminal-output');
@@ -15,10 +17,13 @@ const loadingText = document.getElementById('loading-text');
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   initTerminal();
-  initWebGL().catch(err => {
-    console.error('WebGL initialization error:', err);
-  });
+  initWebGL();
   simulateLoading();
+  
+  // Initialize CRT shader effects after loading completes
+  setTimeout(() => {
+    initCRTShader();
+  }, 2500);
 });
 
 // ===== LOADING SIMULATION =====
@@ -451,6 +456,21 @@ async function initWebGL() {
     });
   } catch (error) {
     console.error('WebGL initialization failed:', error);
+  }
+}
+
+// ===== CRT SHADER EFFECTS =====
+function initCRTShader() {
+  try {
+    crtEffect = new CRTShaderEffect();
+    const success = crtEffect.init();
+    if (success) {
+      console.log('CRT shader effects active');
+    } else {
+      console.warn('CRT shader effects could not be initialized');
+    }
+  } catch (error) {
+    console.error('CRT shader initialization error:', error);
   }
 }
 
