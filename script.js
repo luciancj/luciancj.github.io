@@ -2,6 +2,8 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.m
 import { EffectComposer } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderToScreen } from './shaderToScreen.js';
+import { Lag } from './lag.js';
 
 console.log('Script.js loaded successfully');
 console.log('THREE imported:', typeof THREE);
@@ -559,7 +561,7 @@ function showTree() {
 
 // ===== THREE.JS / WEBGL BACKGROUND =====
 async function initWebGL() {
-  console.log('🎮 Initializing WebGL with CRT bulge effect...');
+  console.log('🎮 Initializing WebGL with complete shader pipeline...');
   
   try {
     const canvas = document.querySelector('.webgl');
@@ -570,9 +572,56 @@ async function initWebGL() {
     
     console.log('✅ Canvas found, creating scene...');
     
-    // ===== MAIN SCENE =====
+    // Load noise shader
+    const noiseFragmentShader = await fetch('./shaders/noise.frag').then(r => r.text());
+    const vertexShader = await fetch('./shaders/vertex.vert').then(r => r.text());
+    console.log('✅ Shaders loaded');
+    
+    // ===== SCENE FOR RENDER TARGET (Screen Content) =====
+    const sceneRTT = new THREE.Scene();
+    sceneRTT.background = new THREE.Color(0x0a0a0a);
+    
+    // Camera for render target
+    const resolution = 512 + 64;
+    const cameraRTT = new THREE.OrthographicCamera(-0.1, 1.496, 0.1, -1.1, 1, 3);
+    sceneRTT.add(cameraRTT);
+    cameraRTT.position.set(0, 0, 1);
+    
+    // Create curved screen geometry for the RTT scene
+    const screenGeometry = new THREE.SphereGeometry(1, 32, 32, 0, Math.PI * 0.5, 0, Math.PI * 0.5);
+    const screenMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0x00ff00,
+      wireframe: true
+    });
+    const screenMesh = new THREE.Mesh(screenGeometry, screenMaterial);
+    screenMesh.position.set(0.5, -0.5, 0);
+    sceneRTT.add(screenMesh);
+    
+    // Add particles to RTT scene
+    const rttParticlesGeometry = new THREE.BufferGeometry();
+    const rttParticlesCount = 300;
+    const rttPosArray = new Float32Array(rttParticlesCount * 3);
+    
+    for(let i = 0; i < rttParticlesCount * 3; i++) {
+      rttPosArray[i] = (Math.random() - 0.5) * 2;
+    }
+    
+    rttParticlesGeometry.setAttribute('position', new THREE.BufferAttribute(rttPosArray, 3));
+    const rttParticlesMaterial = new THREE.PointsMaterial({
+      size: 0.01,
+      color: 0x00ff00,
+      transparent: true,
+      opacity: 0.8
+    });
+    
+    const rttParticlesMesh = new THREE.Points(rttParticlesGeometry, rttParticlesMaterial);
+    rttParticlesMesh.position.set(0.7, -0.5, 0);
+    sceneRTT.add(rttParticlesMesh);
+    
+    console.log('✅ RTT scene created');
+    
+    // ===== MAIN SCENE (Background) =====
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0a0a);
     
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -580,12 +629,12 @@ async function initWebGL() {
       0.1,
       1000
     );
-    camera.position.z = 3;
+    camera.position.z = 5;
     
     // Renderer
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas,
-      alpha: false,
+      alpha: true,
       antialias: true
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -593,215 +642,116 @@ async function initWebGL() {
     
     console.log('✅ Renderer created');
     
-    // ===== CURVED SCREEN WITH BULGE EFFECT =====
-    console.log('Creating curved CRT screen...');
-    
-    // Create a sphere geometry for the CRT bulge effect
-    const screenGeometry = new THREE.SphereGeometry(2, 64, 64, 0, Math.PI * 0.6, 0, Math.PI * 0.6);
-    
-    // Custom shader for the CRT screen with barrel distortion
-    const screenMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uColor: { value: new THREE.Color(0x00ff00) },
-        uScanlineIntensity: { value: 0.05 },
-        uNoiseIntensity: { value: 0.02 }
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        
-        void main() {
-          vUv = uv;
-          vPosition = position;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform float uTime;
-        uniform vec3 uColor;
-        uniform float uScanlineIntensity;
-        uniform float uNoiseIntensity;
-        
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        
-        // Random noise function
-        float random(vec2 st) {
-          return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
-        }
-        
-        // Scanline effect
-        float scanline(float y) {
-          return sin(y * 800.0) * uScanlineIntensity;
-        }
-        
-        void main() {
-          // Create grid pattern
-          vec2 grid = fract(vUv * 20.0);
-          float gridLines = step(0.95, grid.x) + step(0.95, grid.y);
-          
-          // Add scanlines
-          float scan = scanline(vUv.y);
-          
-          // Add noise
-          float noise = random(vUv + uTime) * uNoiseIntensity;
-          
-          // Fade towards edges for CRT vignette
-          float vignette = 1.0 - length(vUv - 0.5) * 0.8;
-          vignette = smoothstep(0.3, 1.0, vignette);
-          
-          // Combine effects
-          vec3 color = uColor * (0.3 + gridLines * 0.7);
-          color += scan + noise;
-          color *= vignette;
-          
-          // Phosphor glow
-          float glow = 1.0 - length(vUv - 0.5) * 0.5;
-          color += uColor * glow * 0.1;
-          
-          gl_FragColor = vec4(color, 1.0);
-        }
-      `,
-      side: THREE.DoubleSide,
-      transparent: false
+    // ===== EFFECT COMPOSER WITH FULL PIPELINE =====
+    const rtTexture = new THREE.WebGLRenderTarget(resolution * 1.33, resolution, {
+      format: THREE.RGBFormat,
     });
     
-    const screenMesh = new THREE.Mesh(screenGeometry, screenMaterial);
-    screenMesh.rotation.y = -Math.PI * 0.3;
-    scene.add(screenMesh);
+    const composer = new EffectComposer(renderer, rtTexture);
+    composer.renderToScreen = false;
     
-    console.log('✅ Curved screen added to scene');
-    
-    // ===== PARTICLES WITH DEPTH =====
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 2000;
-    const posArray = new Float32Array(particlesCount * 3);
-    const colorArray = new Float32Array(particlesCount * 3);
-    
-    for(let i = 0; i < particlesCount; i++) {
-      // Position particles in a volume behind the screen
-      posArray[i * 3] = (Math.random() - 0.5) * 8;
-      posArray[i * 3 + 1] = (Math.random() - 0.5) * 8;
-      posArray[i * 3 + 2] = (Math.random() - 0.5) * 5 - 2;
-      
-      // Green color with variation
-      const brightness = 0.5 + Math.random() * 0.5;
-      colorArray[i * 3] = 0;
-      colorArray[i * 3 + 1] = brightness;
-      colorArray[i * 3 + 2] = 0;
-    }
-    
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
-    
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.03,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.6,
-      blending: THREE.AdditiveBlending
-    });
-    
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particlesMesh);
-    
-    console.log('✅ Particles added');
-    
-    // ===== OSCILLOSCOPE LINES =====
-    const lineGeometry = new THREE.BufferGeometry();
-    const linePoints = 200;
-    const linePositions = new Float32Array(linePoints * 3);
-    
-    for(let i = 0; i < linePoints; i++) {
-      linePositions[i * 3] = (i / linePoints - 0.5) * 6;
-      linePositions[i * 3 + 1] = 0;
-      linePositions[i * 3 + 2] = -1;
-    }
-    
-    lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-    
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0x00ff00,
-      transparent: true,
-      opacity: 0.8
-    });
-    
-    const oscilloscopeLine = new THREE.Line(lineGeometry, lineMaterial);
-    scene.add(oscilloscopeLine);
-    
-    console.log('✅ Oscilloscope line added');
-    
-    // ===== POST-PROCESSING WITH BLOOM =====
-    console.log('Setting up bloom pass...');
-    
-    const composer = new EffectComposer(renderer);
-    
-    const renderPass = new RenderPass(scene, camera);
+    const renderPass = new RenderPass(sceneRTT, cameraRTT);
     composer.addPass(renderPass);
     
-    // Bloom for glow
+    // Bloom pass for glow
     const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      new THREE.Vector2(128, 128),
       1.5,  // strength
       0.4,  // radius
-      0.85  // threshold
+      0.1   // threshold
     );
     composer.addPass(bloomPass);
     
-    console.log('✅ Post-processing configured');
+    console.log('✅ EffectComposer configured with bloom');
+    
+    // Phosphor lag effect
+    const lag = new Lag(composer.readBuffer, resolution * 1.33, resolution);
+    console.log('✅ Phosphor lag effect initialized');
+    
+    // Noise and scanline shader
+    const noiseShader = new ShaderToScreen(
+      {
+        uniforms: {
+          uDiffuse: { value: lag.outputTexture.texture },
+          uTime: { value: 1 },
+          uProgress: { value: 1.2 },
+        },
+        vertexShader: vertexShader,
+        fragmentShader: noiseFragmentShader,
+      },
+      resolution * 1.33,
+      resolution
+    );
+    console.log('✅ Noise shader configured');
+    
+    // ===== BACKGROUND ELEMENTS =====
+    const bgParticlesGeometry = new THREE.BufferGeometry();
+    const bgParticlesCount = 1000;
+    const bgPosArray = new Float32Array(bgParticlesCount * 3);
+    
+    for(let i = 0; i < bgParticlesCount * 3; i++) {
+      bgPosArray[i] = (Math.random() - 0.5) * 10;
+    }
+    
+    bgParticlesGeometry.setAttribute('position', new THREE.BufferAttribute(bgPosArray, 3));
+    const bgParticlesMaterial = new THREE.PointsMaterial({
+      size: 0.02,
+      color: 0x00ff00,
+      transparent: true,
+      opacity: 0.3
+    });
+    
+    const bgParticlesMesh = new THREE.Points(bgParticlesGeometry, bgParticlesMaterial);
+    scene.add(bgParticlesMesh);
+    
+    console.log('✅ Background particles added');
     
     // ===== ANIMATION =====
     const clock = new THREE.Clock();
+    let uProgress = 1.2;
     
     function animate() {
       const elapsedTime = clock.getElapsedTime();
+      const deltaTime = clock.getDelta();
       
-      // Update screen shader
-      screenMaterial.uniforms.uTime.value = elapsedTime;
+      // Animate RTT scene
+      screenMesh.rotation.y = elapsedTime * 0.2;
+      rttParticlesMesh.rotation.y = elapsedTime * 0.3;
       
-      // Gentle screen movement
-      screenMesh.rotation.y = -Math.PI * 0.3 + Math.sin(elapsedTime * 0.2) * 0.05;
+      // Animate background
+      bgParticlesMesh.rotation.y = elapsedTime * 0.05;
       
-      // Animate particles
-      const positions = particlesGeometry.attributes.position.array;
-      for(let i = 0; i < particlesCount; i++) {
-        const i3 = i * 3;
-        // Drift particles slowly
-        positions[i3 + 1] += Math.sin(elapsedTime + positions[i3]) * 0.0005;
-        positions[i3] += Math.cos(elapsedTime + positions[i3 + 1]) * 0.0003;
-      }
-      particlesGeometry.attributes.position.needsUpdate = true;
+      // Update shader uniforms
+      noiseShader.shader.uniforms.uTime.value = elapsedTime;
+      noiseShader.shader.uniforms.uProgress.value = uProgress;
       
-      // Animate oscilloscope line
-      const linePos = lineGeometry.attributes.position.array;
-      for(let i = 0; i < linePoints; i++) {
-        const i3 = i * 3;
-        const x = linePos[i3];
-        linePos[i3 + 1] = Math.sin(x * 2 + elapsedTime * 2) * 0.3 +
-                          Math.sin(x * 5 + elapsedTime * 3) * 0.1;
-      }
-      lineGeometry.attributes.position.needsUpdate = true;
+      uProgress -= deltaTime * 0.2;
+      if (uProgress < 0) uProgress = 1.2;
       
-      // Render with post-processing
+      // Render pipeline: scene → composer → bloom → lag → noise → screen
+      lag.render(renderer);
       composer.render();
+      noiseShader.render(renderer);
+      
+      // Render main scene with shader output
+      renderer.setRenderTarget(null);
+      renderer.render(scene, camera);
       
       requestAnimationFrame(animate);
     }
     
     animate();
     
-    console.log('✅ Animation started!');
+    console.log('✅ Animation started with full shader pipeline!');
     
     // Handle resize
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      composer.setSize(window.innerWidth, window.innerHeight);
     });
     
-    console.log('🎉 WebGL initialized successfully with CRT bulge effect!');
+    console.log('🎉 WebGL initialized successfully with complete shader effects!');
   } catch (error) {
     console.error('❌ WebGL initialization failed:', error);
     console.error('Error stack:', error.stack);
