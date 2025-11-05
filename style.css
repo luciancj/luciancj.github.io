@@ -186,27 +186,131 @@ body {
   height: 70vh;
   max-height: 600px;
   background: rgba(10, 10, 10, 0.95);
-  perspective: 1000px;
+  perspective: 1200px;
   overflow: hidden;
   
   /* CRT Barrel Distortion Effect - Enhanced for oscilloscope bulge */
-  border-radius: 12% / 10%;
+  border-radius: 15% / 12%;
   transform: 
-    perspective(800px)
-    translateZ(30px)
-    rotateX(2deg);
+    perspective(600px)
+    translateZ(40px)
+    rotateX(3deg);
   transform-style: preserve-3d;
-  filter: contrast(1.15) brightness(1.08);
+  
+  /* Sharper rendering */
+  filter: contrast(1.15) brightness(1.05);
+  image-rendering: crisp-edges;
   
   /* Glass CRT screen with depth */
   box-shadow: 
-    inset 0 0 150px rgba(0, 255, 0, 0.05),
-    inset 0 0 100px rgba(0, 0, 0, 0.9),
-    inset 0 20px 80px rgba(0, 0, 0, 0.8),
-    inset 0 -20px 80px rgba(0, 0, 0, 0.8),
-    inset 30px 0 80px rgba(0, 0, 0, 0.7),
-    inset -30px 0 80px rgba(0, 0, 0, 0.7),
-    0 0 40px rgba(0, 255, 0, 0.2);
+    inset 0 0 150px rgba(0, 255, 0, 0.08),
+    inset 0 0 120px rgba(0, 0, 0, 0.95),
+    inset 0 25px 100px rgba(0, 0, 0, 0.85),
+    inset 0 -25px 100px rgba(0, 0, 0, 0.85),
+    inset 40px 0 100px rgba(0, 0, 0, 0.75),
+    inset -40px 0 100px rgba(0, 0, 0, 0.75),
+    0 0 50px rgba(0, 255, 0, 0.25);
+}
+
+/* Welcome text with cylindrical wrap */
+#welcome-text {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  color: #00ff00;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  z-index: 100;
+  overflow-y: auto;
+  padding: 40px 60px;
+  
+  /* 3D Cylindrical text wrap effect - MORE PRONOUNCED */
+  transform-style: preserve-3d;
+  transform: 
+    perspective(500px)
+    rotateY(0deg)
+    translateZ(-30px)
+    scale(0.95);
+  
+  /* Barrel distortion to match CRT bulge - STRONGER */
+  border-radius: 12%;
+  
+  /* Crisp text rendering */
+  filter: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Minimal phosphor glow - very sharp */
+  text-shadow: 
+    0 0 2px rgba(0, 255, 0, 0.4),
+    0 0 4px rgba(0, 255, 0, 0.2);
+}
+
+/* Simulate curvature by transforming lines based on position */
+#welcome-text::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  right: -10%;
+  bottom: -10%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.1) 70%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 50%;
+}
+
+/* Each line of text gets slight 3D positioning */
+#welcome-text > * {
+  transform-style: preserve-3d;
+  position: relative;
+  animation: textBreathe 4s ease-in-out infinite;
+}
+
+@keyframes textBreathe {
+  0%, 100% { 
+    transform: translateZ(0px) scaleX(1);
+  }
+  50% { 
+    transform: translateZ(2px) scaleX(0.99);
+  }
+}
+
+/* Create depth layers for different sections */
+#welcome-text pre {
+  transform: translateZ(8px) rotateX(-1deg);
+  text-align: center;
+  padding: 10px 0;
+}
+
+#welcome-text div {
+  transform: translateZ(0px);
+  margin-left: 0;
+  margin-right: 0;
+  padding: 5px 15px;
+}
+
+/* Input line at the bottom gets more depth */
+#welcome-text #output {
+  transform: translateZ(12px) rotateX(-0.5deg);
+  margin-top: 10px;
+}
+
+/* Command input container - MOST DEPTH */
+#welcome-text > div:last-child {
+  transform: translateZ(18px) rotateX(-1deg);
+  padding: 10px 15px;
+  background: rgba(0, 255, 0, 0.02);
+  border-radius: 4px;
 }
 
 /* Glass Reflection - Upper Left */
@@ -219,15 +323,15 @@ body {
   height: 50%;
   background: radial-gradient(
     ellipse at 20% 20%,
-    rgba(255, 255, 255, 0.25) 0%,
-    rgba(255, 255, 255, 0.12) 15%,
-    rgba(255, 255, 255, 0.04) 35%,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.08) 15%,
+    rgba(255, 255, 255, 0.02) 35%,
     transparent 65%
   );
   pointer-events: none;
   z-index: 3;
   border-radius: 50%;
-  filter: blur(20px);
+  filter: blur(15px);
   mix-blend-mode: screen;
   animation: glassShimmer 8s ease-in-out infinite;
 }
@@ -259,7 +363,7 @@ body {
   border-radius: 8% / 6%;
 }
 
-/* CRT Effect */
+/* CRT Effect - Authentic Scanlines */
 #crt-effect {
   position: absolute;
   top: 0;
@@ -270,18 +374,17 @@ body {
   z-index: 2;
   border-radius: 8% / 6%;
   
-  /* Scanlines */
+  /* Very subtle scanlines for maximum sharpness */
   background: repeating-linear-gradient(
     0deg,
-    rgba(0, 0, 0, 0.2) 0px,
-    rgba(0, 0, 0, 0.1) 1px,
-    transparent 2px,
-    transparent 3px,
-    rgba(0, 0, 0, 0.2) 4px
+    rgba(0, 0, 0, 0.08) 0px,
+    rgba(0, 0, 0, 0.08) 1px,
+    transparent 1px,
+    transparent 2px
   );
   
-  /* Add phosphor glow */
-  box-shadow: inset 0 0 80px rgba(0, 255, 0, 0.08);
+  /* Minimal phosphor glow */
+  box-shadow: inset 0 0 40px rgba(0, 255, 0, 0.03);
   animation: flicker 0.15s infinite, crtWobble 8s ease-in-out infinite;
 }
 
@@ -295,6 +398,48 @@ body {
   0%, 100% { transform: translateY(0); }
   25% { transform: translateY(-0.5px); }
   75% { transform: translateY(0.5px); }
+}
+
+/* Noise Overlay - Authentic CRT grain */
+#noise-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.03;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 0, 0.03) 2px,
+      rgba(0, 255, 0, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 0, 0.03) 2px,
+      rgba(0, 255, 0, 0.03) 4px
+    );
+  animation: noiseAnim 0.2s infinite;
+}
+
+@keyframes noiseAnim {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(1%, 1%); }
+  30% { transform: translate(-1%, 1%); }
+  40% { transform: translate(1%, -1%); }
+  50% { transform: translate(-1%, 0); }
+  60% { transform: translate(1%, 0); }
+  70% { transform: translate(0, -1%); }
+  80% { transform: translate(0, 1%); }
+  90% { transform: translate(-1%, -1%); }
+  100% { transform: translate(0, 0); }
 }
 
 /* Additional inner vignette for content area */

@@ -143,7 +143,7 @@ function handleKeyDown(e) {
 */
 
 function displayWelcome() {
-  console.log('Terminal ready - WebGL mode');
+  console.log('Terminal ready - WebGL mode with 3D text wrap');
   console.log('displayWelcome() START');
   
   // Add visible welcome text to the terminal container
@@ -157,20 +157,7 @@ function displayWelcome() {
   
   const welcomeText = document.createElement('div');
   welcomeText.id = 'welcome-text';
-  welcomeText.style.cssText = `
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    bottom: 20px;
-    color: #00ff00;
-    font-family: 'VT323', monospace;
-    font-size: 1.2rem;
-    line-height: 1.6;
-    z-index: 100;
-    text-shadow: 0 0 10px rgba(0,255,0,0.5);
-    overflow-y: auto;
-  `;
+  // Styles now in CSS for proper 3D transform
   
   welcomeText.innerHTML = `
 <pre style="margin: 0; color: #00ff00;">
