@@ -92,18 +92,32 @@ let githubReposLoaded = false;
 const LOGO_PATH = 'images/bme-logo-crt.png';
 
 function preload() {
-  crtShader = loadShader('shaders/crt.vert.glsl', 'shaders/crt.frag.glsl');
-  lumon = loadImage(LOGO_PATH);
+  try {
+    crtShader = loadShader('shaders/crt.vert.glsl', 'shaders/crt.frag.glsl');
+  } catch (e) {
+    console.error('Failed to load shader:', e);
+  }
+  try {
+    lumon = loadImage(LOGO_PATH);
+  } catch (e) {
+    console.error('Failed to load image:', e);
+  }
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   pixelDensity(1);
   
-  // Remove the loading screen now that p5.js has loaded
+  // Force remove the loading screen
   const loadingDiv = document.getElementById('p5_loading');
   if (loadingDiv) {
-    loadingDiv.style.display = 'none';
+    loadingDiv.remove();
+  }
+  
+  // Also try by class name as backup
+  const loadingByClass = document.querySelector('.loadingclass');
+  if (loadingByClass) {
+    loadingByClass.remove();
   }
   
   // Initialize graphics buffer for main drawing
