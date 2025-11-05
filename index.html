@@ -15,6 +15,15 @@
     <meta charset="utf-8" />
   </head>
   <body>
+    <script>
+      // Remove loading screen after a short delay
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loading = document.getElementById('p5_loading');
+          if (loading) loading.remove();
+        }, 100);
+      });
+    </script>
     <script src="terminal-sketch.js"></script>
     <script src="utils.js"></script>
     <div id="p5_loading" class="loadingclass">Loading...</div>
