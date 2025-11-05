@@ -181,7 +181,7 @@ function setup() {
 function draw() {
   g.colorMode(RGB);
   g.background(palette.BG);
-  g.textFont('Courier');
+  g.textFont('IBM Plex Mono');
   
   // CRT power-on effect
   if (!powerOnComplete) {
@@ -345,7 +345,7 @@ function drawPowerOnEffect() {
   if (progress < 0.4) {
     g.fill(palette.FG);
     g.noStroke();
-    g.textFont('Courier');
+    g.textFont('IBM Plex Mono');
     g.textSize(16);
     g.textAlign(CENTER, CENTER);
     let brightness = progress < 0.5 ? 0.3 + (progress / 0.5) * 0.7 : 1.0;
@@ -383,7 +383,7 @@ function drawTop() {
   g.stroke(palette.FG);
   g.strokeWeight(4);
   g.textSize(32);
-  g.textFont('Courier');
+  g.textFont('IBM Plex Mono');
   g.textAlign(LEFT, CENTER);
   
   // Show name on left
@@ -416,7 +416,7 @@ function drawBottom() {
   g.fill(palette.FG);
   g.rect(0, g.height - 20, g.width, 20);
   g.fill(palette.BG);
-  g.textFont('Courier');
+  g.textFont('IBM Plex Mono');
   g.textAlign(CENTER, CENTER);
   g.textSize(14);
   // Display help text in the footer like original game shows coordinates
@@ -589,7 +589,7 @@ function drawOscilloscopeEffects() {
 function drawTerminal() {
   g.fill(palette.FG);
   g.noStroke();
-  g.textFont('Courier');
+  g.textFont('IBM Plex Mono');
   g.textSize(16);
   g.textAlign(LEFT, TOP);
 
@@ -985,7 +985,7 @@ class Bin {
 
   writeIndex() {
     g.textSize(18);
-    g.textFont('Courier');
+    g.textFont('IBM Plex Mono');
     g.textAlign(CENTER, CENTER);
     g.fill(palette.FG);
     g.noStroke();
