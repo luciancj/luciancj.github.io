@@ -118,39 +118,24 @@ const portfolioData = {
     ]
   },
   skills: {
-    programming: 'C, C++, Python, Swift, SQL, HTML, CSS',
-    ml_ai: 'Machine Learning, Deep Learning, Neural Networks, Scikit-learn, SciPy',
+    programming: 'C, C++, Python, SQL',
     gpu_hpc: 'NVIDIA CUDA, GPU Programming, High-Performance Computing',
-    cloud_devops: 'IBM Cloud, AWS, Google Cloud, CI/CD, Infrastructure as Code, Git',
-    networking: 'CCNA, Network Management, IP Protocols, Subnetting',
-    data_science: 'Data Analysis, Data Classification, Regression Analysis, Matplotlib, Bokeh',
+    cloud_devops: 'AWS, Google Cloud, CI/CD, Git',
+    networking: 'CCNA',
     databases: 'MongoDB, MySQL, PostgreSQL',
-    tools: 'Docker, CMake, LaTeX, Arduino, VS Code, SAP'
+    tools: 'Docker, LaTeX'
   },
   certifications: [
     { name: 'CS50x: Introduction to Computer Science', issuer: 'Harvard University', year: '2025' },
     { name: 'Fundamentals of Accelerated Computing with CUDA C/C++', issuer: 'NVIDIA', year: '2025', expires: 'Mar 2026' },
-    { name: 'Code in Place', issuer: 'Stanford University', year: '2025' },
+    { name: 'Intel® Tiber™ Trust Authority', issuer: 'Intel', year: '2025', level: 'Intermediate' },
     { name: 'CCNA: Introduction to Networks', issuer: 'Cisco', year: '2025', url: 'https://www.credly.com/badges/8c0c51e1-2f72-4b4c-84ec-ab42878fb68b/public_url' },
-    { name: 'Developing a Google SRE Culture', issuer: 'Coursera', year: '2023' },
-    { name: 'DevOps Essentials', issuer: 'Coursera', year: '2023', url: 'https://www.credly.com/badges/ab0fc64e-276b-45cb-acb8-b5b67c434e76/public_url' },
-    { name: 'Introduction to Agile Development and Scrum (with Honors)', issuer: 'Coursera', year: '2023' },
-    { name: 'MongoDB Data Modeling Intro', issuer: 'MongoDB', year: '2023' },
-    { name: 'MongoDB and the Document Model', issuer: 'MongoDB', year: '2023' },
-    { name: 'Connecting to a MongoDB Database', issuer: 'MongoDB', year: '2022' },
-    { name: 'Getting Started with MongoDB Atlas', issuer: 'MongoDB', year: '2022' },
-    { name: 'Machine Learning with Python', issuer: 'Coursera', year: '2020', url: 'https://www.credly.com/badges/448474d2-1b64-43e2-8b59-0dba15c874b0/public_url' },
-    { name: 'Google Cloud Fundamentals: Core Infrastructure', issuer: 'Coursera', year: '2020' },
-    { name: 'Introduction to AI', issuer: 'Coursera', year: '2020' },
-    { name: 'Fundamentals of Graphic Design', issuer: 'Coursera', year: '2020' },
-    { name: 'Introduction to Programming in Swift 5', issuer: 'Coursera', year: '2020' },
-    { name: 'Technical Support Fundamentals', issuer: 'Coursera', year: '2020' }
+    { name: 'Machine Learning with Python', issuer: 'Coursera', year: '2020', url: 'https://www.credly.com/badges/448474d2-1b64-43e2-8b59-0dba15c874b0/public_url' }
   ],
   currentFocus: [
-    'Developing an Integration Calculator in C for numerical integration',
-    'Expanding expertise in NVIDIA CUDA C/C++ for accelerated computing',
-    'Exploring MongoDB data modeling and modern Java application development',
-    'Learning Google Cloud Infrastructure design patterns and microservices'
+    'Developing high-performance applications with NVIDIA CUDA C/C++',
+    'Expanding expertise in GPU programming and parallel computing architectures',
+    'Building scalable cloud infrastructure on AWS and Google Cloud'
   ],
   projects: [] // Will be populated from GitHub API
 };
@@ -818,10 +803,7 @@ function executeCommand(cmd) {
     addOutput('Programming Languages:', palette.SELECT);
     addOutput('  ' + portfolioData.skills.programming);
     addOutput('');
-    addOutput('Machine Learning & AI:', palette.SELECT);
-    addOutput('  ' + portfolioData.skills.ml_ai);
-    addOutput('');
-    addOutput('GPU & HPC:', palette.SELECT);
+    addOutput('GPU & High-Performance Computing:', palette.SELECT);
     addOutput('  ' + portfolioData.skills.gpu_hpc);
     addOutput('');
     addOutput('Cloud & DevOps:', palette.SELECT);
@@ -829,9 +811,6 @@ function executeCommand(cmd) {
     addOutput('');
     addOutput('Networking:', palette.SELECT);
     addOutput('  ' + portfolioData.skills.networking);
-    addOutput('');
-    addOutput('Data Science:', palette.SELECT);
-    addOutput('  ' + portfolioData.skills.data_science);
     addOutput('');
     addOutput('Databases:', palette.SELECT);
     addOutput('  ' + portfolioData.skills.databases);
@@ -848,6 +827,7 @@ function executeCommand(cmd) {
       let line = `${i + 1}. ${cert.name}`;
       addOutput(line, palette.SELECT);
       let details = `   ${cert.issuer} — ${cert.year}`;
+      if (cert.level) details += ` (${cert.level})`;
       if (cert.expires) details += ` (expires ${cert.expires})`;
       addOutput(details);
       if (cert.url) addOutput(`   ${cert.url}`, palette.FG);
