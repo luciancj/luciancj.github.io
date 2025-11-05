@@ -6,32 +6,37 @@ let useShader;
 
 // Background and Foreground colours (from original)
 const mobilePalette = {
-  BG: '#010A13',
-  FG: '#ABFFE9',
-  SELECT: '#EEFFFF',
+  BG: '#0A0F0A',
+  FG: '#33FF33',
+  SELECT: '#66FF66',
   LEVELS: {
-    WO: '#05C3A8',
-    FC: '#1EEFFF',
-    DR: '#DF81D5',
-    MA: '#F9ECBB',
+    WO: '#29CC29',
+    FC: '#3DFF3D',
+    DR: '#24BB24',
+    MA: '#47FF47',
   }
 };
 
 const shaderPalette = {
-  BG: '#111111',
-  FG: '#99f',
-  SELECT: '#fff',
+  BG: '#0D110D',
+  FG: '#33FF33',
+  SELECT: '#66FF66',
   LEVELS: {
-    WO: '#17AC97',
-    FC: '#4ABCC5',
-    DR: '#B962B0',
-    MA: '#D4BB5E',
+    WO: '#29CC29',
+    FC: '#3DFF3D',
+    DR: '#24BB24',
+    MA: '#47FF47',
   }
 };
 
 let palette = mobilePalette;
 let smaller;
 let buffer = 120; // Increased to add padding between header box and terminal text
+
+// Oscilloscope effects
+let scanlineY = 0;
+let scanlineSpeed = 2;
+let flickerAmount = 0;
 
 // Bin system
 const keys = ['WO', 'FC', 'DR', 'MA'];
@@ -139,6 +144,9 @@ function draw() {
   // Draw bins and footer together (like the game's bottom section)
   drawBottom();
   
+  // Draw oscilloscope effects
+  drawOscilloscopeEffects();
+  
   // Draw custom cursor
   drawCursor(mouseX, mouseY);
 
@@ -208,6 +216,66 @@ function drawBottom() {
   g.textSize(14);
   // Display help text in the footer like original game shows coordinates
   g.text('Type "help" for commands', g.width * 0.5, g.height - 10);
+}
+
+function drawOscilloscopeEffects() {
+  // Moving scanline effect (like oscilloscope sweep)
+  scanlineY += scanlineSpeed;
+  if (scanlineY > g.height) {
+    scanlineY = 0;
+  }
+  
+  // Draw bright horizontal scanline
+  g.push();
+  g.stroke(palette.SELECT);
+  g.strokeWeight(2);
+  g.drawingContext.globalAlpha = 0.4;
+  g.line(0, scanlineY, g.width, scanlineY);
+  
+  // Add glow effect to scanline
+  g.stroke(palette.FG);
+  g.strokeWeight(1);
+  g.drawingContext.globalAlpha = 0.2;
+  g.line(0, scanlineY - 1, g.width, scanlineY - 1);
+  g.line(0, scanlineY + 1, g.width, scanlineY + 1);
+  g.pop();
+  
+  // Random horizontal flicker lines (like signal interference)
+  if (random() > 0.95) {
+    let flickerY = random(g.height);
+    g.push();
+    g.stroke(palette.FG);
+    g.strokeWeight(1);
+    g.drawingContext.globalAlpha = 0.3;
+    g.line(0, flickerY, g.width, flickerY);
+    g.pop();
+  }
+  
+  // Subtle screen flicker
+  if (frameCount % 120 === 0) {
+    flickerAmount = random(0.02, 0.05);
+  } else {
+    flickerAmount *= 0.95;
+  }
+  
+  if (flickerAmount > 0.01) {
+    g.push();
+    g.noStroke();
+    g.fill(palette.FG);
+    g.drawingContext.globalAlpha = flickerAmount;
+    g.rect(0, 0, g.width, g.height);
+    g.pop();
+  }
+  
+  // Edge glow effect (phosphor persistence)
+  g.push();
+  g.noFill();
+  g.stroke(palette.FG);
+  g.strokeWeight(1);
+  g.drawingContext.globalAlpha = 0.1;
+  g.rect(2, 2, g.width - 4, g.height - 4);
+  g.rect(4, 4, g.width - 8, g.height - 8);
+  g.pop();
 }
 
 function drawTerminal() {

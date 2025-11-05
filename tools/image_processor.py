@@ -11,15 +11,15 @@ import os
 
 # Color palettes from the game
 MOBILE_PALETTE = {
-    'bg': (1, 10, 19),      # #010A13
-    'fg': (171, 255, 233),   # #ABFFE9
-    'select': (238, 255, 255) # #EEFFFF
+    'bg': (10, 15, 10),      # #0A0F0A
+    'fg': (51, 255, 51),     # #33FF33
+    'select': (102, 255, 102) # #66FF66
 }
 
 SHADER_PALETTE = {
-    'bg': (17, 17, 17),      # #111111
-    'fg': (153, 153, 255),   # #99f
-    'select': (255, 255, 255) # #fff
+    'bg': (13, 17, 13),      # #0D110D
+    'fg': (51, 255, 51),     # #33FF33
+    'select': (102, 255, 102) # #66FF66
 }
 
 def rgb_distance(c1, c2):
