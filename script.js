@@ -12,17 +12,26 @@ let historyIndex = -1;
 let currentPath = '~';
 let crtEffect = null;
 
-// DOM Elements
-const textarea = document.getElementById('textarea');
-const loading = document.getElementById('loading');
-const loadingProgress = document.getElementById('loading-bar-progress');
-const loadingText = document.getElementById('loading-text');
-
-console.log('DOM elements:', { textarea, loading, loadingProgress, loadingText });
+// DOM Elements - will be initialized in DOMContentLoaded
+let textarea, loading, loadingProgress, loadingText;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('DOMContentLoaded fired');
+  console.log('🚀 DOMContentLoaded fired - initializing...');
+  
+  // Initialize DOM elements
+  textarea = document.getElementById('textarea');
+  loading = document.getElementById('loading');
+  loadingProgress = document.getElementById('loading-bar-progress');
+  loadingText = document.getElementById('loading-text');
+  
+  console.log('📦 DOM elements:', { 
+    textarea: !!textarea, 
+    loading: !!loading, 
+    loadingProgress: !!loadingProgress, 
+    loadingText: !!loadingText 
+  });
+  
   try {
     await initWebGL();
     console.log('✅ WebGL initialization complete, starting loading simulation');
@@ -36,12 +45,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ===== LOADING SIMULATION =====
 function simulateLoading() {
-  console.log('Starting loading simulation...');
+  console.log('🔄 Starting loading simulation...');
   
   if (!loading || !loadingProgress || !loadingText) {
-    console.error('Loading elements not found!', { loading, loadingProgress, loadingText });
+    console.error('❌ Loading elements not found!', { loading, loadingProgress, loadingText });
+    // Force hide loading after 1 second even if elements missing
+    setTimeout(() => {
+      if (loading) loading.style.display = 'none';
+      console.log('⚠️ Forced loading screen hide due to missing elements');
+      displayWelcome();
+    }, 1000);
     return;
   }
+  
+  // Failsafe: force hide after 5 seconds no matter what
+  setTimeout(() => {
+    if (loading && !loading.classList.contains('hidden')) {
+      console.log('⏰ Failsafe: Force hiding loading screen after 5 seconds');
+      loading.classList.add('hidden');
+      displayWelcome();
+    }
+  }, 5000);
   
   const stages = [
     { progress: 20, text: 'Loading system files...' },
@@ -54,19 +78,19 @@ function simulateLoading() {
   let currentStage = 0;
   const interval = setInterval(() => {
     if (currentStage < stages.length) {
-      console.log(`Loading stage ${currentStage}: ${stages[currentStage].text}`);
+      console.log(`📊 Loading stage ${currentStage}: ${stages[currentStage].text}`);
       loadingProgress.style.width = stages[currentStage].progress + '%';
       loadingText.textContent = stages[currentStage].text;
       currentStage++;
     } else {
-      console.log('Loading complete, hiding loading screen...');
+      console.log('✅ Loading complete, hiding loading screen...');
       clearInterval(interval);
       setTimeout(() => {
         loading.classList.add('hidden');
-        console.log('Loading screen hidden');
-        console.log('About to call displayWelcome()');
+        console.log('👋 Loading screen hidden');
+        console.log('📞 About to call displayWelcome()');
         displayWelcome();
-        console.log('displayWelcome() completed');
+        console.log('✅ displayWelcome() completed');
       }, 500);
     }
   }, 400);
