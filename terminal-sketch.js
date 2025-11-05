@@ -100,6 +100,12 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   pixelDensity(1);
   
+  // Remove the loading screen now that p5.js has loaded
+  const loadingDiv = document.getElementById('p5_loading');
+  if (loadingDiv) {
+    loadingDiv.style.display = 'none';
+  }
+  
   // Initialize graphics buffer for main drawing
   g = createGraphics(width, height);
   g.pixelDensity(1);
