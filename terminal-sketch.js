@@ -10,10 +10,10 @@ const mobilePalette = {
   FG: '#ABFFE9',
   SELECT: '#EEFFFF',
   LEVELS: {
-    WO: '#00FF94',
-    FC: '#FF6B9D',
-    DR: '#FFC600',
-    MA: '#00D9FF'
+    WO: '#05C3A8',
+    FC: '#1EEFFF',
+    DR: '#DF81D5',
+    MA: '#F9ECBB',
   }
 };
 
@@ -22,10 +22,10 @@ const shaderPalette = {
   FG: '#99f',
   SELECT: '#fff',
   LEVELS: {
-    WO: '#00FF94',
-    FC: '#FF6B9D',
-    DR: '#FFC600',
-    MA: '#00D9FF'
+    WO: '#17AC97',
+    FC: '#4ABCC5',
+    DR: '#B962B0',
+    MA: '#D4BB5E',
   }
 };
 
@@ -368,29 +368,23 @@ function windowResized() {
   }
 }
 
-// Custom cursor from original game
+// Custom cursor from original game (exact implementation)
 function drawCursor(xPos, yPos) {
-  // Don't draw when the cursor is at 0,0
-  if (xPos == 0 && yPos == 0) {
-    return;
-  }
-  
+  // prevents the cursor appearing in top left corner on page load
+  if (xPos == 0 && yPos == 0) return;
   g.push();
+  // this offset makes the box draw from point of cursor 
   g.translate(xPos + 10, yPos + 10);
   g.scale(1.2);
-  g.rotate(-PI / 5);
-  
   g.fill(palette.BG);
   g.stroke(palette.FG);
-  g.strokeWeight(2);
+  g.strokeWeight(3);
   g.beginShape();
-  g.vertex(0, 0);
-  g.vertex(10, 10);
-  g.vertex(6, 10);
-  g.vertex(9, 18);
-  g.vertex(6, 19);
-  g.vertex(3, 11);
-  g.vertex(0, 11);
+  g.rotate(-PI / 5);
+  g.vertex(0, -10);
+  g.vertex(7.5, 10);
+  g.vertex(0, 5);
+  g.vertex(-7.5, 10);
   g.endShape(CLOSE);
   g.pop();
 }
