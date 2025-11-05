@@ -314,9 +314,9 @@ function drawTerminal() {
     y = maxY - lineHeight * 2;
   }
   
-  // Draw prompt with current path
+  // Draw prompt with current directory
   g.fill(palette.SELECT);
-  let prompt = '> ';
+  let prompt = currentPath + ' > ';
   g.text(prompt, x, y);
   
   g.fill(palette.FG);
