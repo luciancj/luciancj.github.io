@@ -189,22 +189,24 @@ body {
   perspective: 1000px;
   overflow: hidden;
   
-  /* CRT Barrel Distortion Effect */
-  border-radius: 8% / 6%;
+  /* CRT Barrel Distortion Effect - Enhanced for oscilloscope bulge */
+  border-radius: 12% / 10%;
   transform: 
-    perspective(1000px)
-    translateZ(20px);
+    perspective(800px)
+    translateZ(30px)
+    rotateX(2deg);
   transform-style: preserve-3d;
-  filter: contrast(1.1) brightness(1.05);
+  filter: contrast(1.15) brightness(1.08);
   
   /* Glass CRT screen with depth */
   box-shadow: 
-    inset 0 0 150px rgba(0, 20, 0, 0.3),
-    inset 0 0 100px rgba(0, 0, 0, 0.8),
-    inset 0 20px 60px rgba(0, 0, 0, 0.7),
-    inset 0 -20px 60px rgba(0, 0, 0, 0.7),
-    inset 20px 0 60px rgba(0, 0, 0, 0.6),
-    inset -20px 0 60px rgba(0, 0, 0, 0.6);
+    inset 0 0 150px rgba(0, 255, 0, 0.05),
+    inset 0 0 100px rgba(0, 0, 0, 0.9),
+    inset 0 20px 80px rgba(0, 0, 0, 0.8),
+    inset 0 -20px 80px rgba(0, 0, 0, 0.8),
+    inset 30px 0 80px rgba(0, 0, 0, 0.7),
+    inset -30px 0 80px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(0, 255, 0, 0.2);
 }
 
 /* Glass Reflection - Upper Left */
