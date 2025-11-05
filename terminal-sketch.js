@@ -167,7 +167,7 @@ function drawTop() {
   g.imageMode(CORNER);
   g.tint(palette.FG);
   // Position logo inside the box, aligned to the right with padding
-  let logoX = wx + w - lumon.width - 15;
+  let logoX = wx + w - lumon.width - 25; // More padding to fit within box bounds
   let logoY = 25 + (50 - lumon.height) / 2; // Center vertically in the 50px box
   g.image(lumon, logoX, logoY);
   g.pop();
