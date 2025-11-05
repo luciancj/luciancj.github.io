@@ -69,21 +69,10 @@ const portfolioData = {
   email: 'your.email@example.com',
   github: 'https://github.com/luciancj',
   githubUsername: 'luciancj',
-  projects: [
-    {
-      name: 'Macrodata Refinement',
-      desc: 'Severance-inspired interactive game',
-      link: 'https://github.com/Lumon-Industries/Macrodata-Refinement',
-      repo: 'Lumon-Industries/Macrodata-Refinement'
-    },
-    {
-      name: 'luciancj.github.io',
-      desc: 'Terminal Portfolio Website',
-      link: 'https://github.com/luciancj/luciancj.github.io',
-      repo: 'luciancj/luciancj.github.io'
-    }
-  ]
+  projects: [] // Will be populated from GitHub API
 };
+
+let githubReposLoaded = false;
 
 // Logo configuration
 const LOGO_PATH = 'images/bme-logo-crt.png';
@@ -131,6 +120,9 @@ function setup() {
   addOutput('Welcome to the terminal.');
   addOutput('Type "help" for available commands');
   addOutput('');
+  
+  // Fetch GitHub repositories
+  fetchGitHubRepos();
 }
 
 function draw() {
@@ -347,14 +339,26 @@ function executeCommand(cmd) {
   }
   else if (cmd === 'projects') {
     addOutput('');
-    addOutput('My Projects:', palette.SELECT);
-    addOutput('');
-    portfolioData.projects.forEach((proj, i) => {
-      addOutput(`${i + 1}. ${proj.name}`, palette.SELECT);
-      addOutput(`   ${proj.desc}`);
-      addOutput(`   ${proj.link}`, palette.FG);
+    if (!githubReposLoaded) {
+      addOutput('Loading projects from GitHub...', palette.SELECT);
       addOutput('');
-    });
+    } else if (portfolioData.projects.length === 0) {
+      addOutput('No projects found', palette.SELECT);
+      addOutput('');
+    } else {
+      addOutput(`My Projects (${portfolioData.projects.length} total):`, palette.SELECT);
+      addOutput('');
+      portfolioData.projects.forEach((proj, i) => {
+        let title = `${i + 1}. ${proj.name}`;
+        if (proj.language) title += ` [${proj.language}]`;
+        if (proj.stars > 0) title += ` ⭐${proj.stars}`;
+        addOutput(title, palette.SELECT);
+        addOutput(`   ${proj.desc}`);
+        if (proj.updated) addOutput(`   Last updated: ${proj.updated}`, palette.FG);
+        addOutput(`   ${proj.link}`, palette.FG);
+        addOutput('');
+      });
+    }
   }
   else if (cmd === 'contact') {
     addOutput('');
@@ -608,16 +612,75 @@ class Bin {
   }
 }
 
+// GitHub API integration
+async function fetchGitHubRepos() {
+  try {
+    const username = portfolioData.githubUsername;
+    const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
+    
+    if (!response.ok) {
+      console.error('Failed to fetch GitHub repos:', response.status);
+      // Add some default repos as fallback
+      portfolioData.projects = [
+        {
+          name: 'luciancj.github.io',
+          desc: 'Terminal Portfolio Website',
+          link: 'https://github.com/luciancj/luciancj.github.io',
+          repo: 'luciancj/luciancj.github.io'
+        }
+      ];
+      githubReposLoaded = true;
+      return;
+    }
+    
+    const repos = await response.json();
+    
+    // Transform GitHub repos to our format
+    portfolioData.projects = repos.map(repo => ({
+      name: repo.name,
+      desc: repo.description || 'No description available',
+      link: repo.html_url,
+      repo: repo.full_name,
+      stars: repo.stargazers_count,
+      language: repo.language,
+      updated: new Date(repo.updated_at).toLocaleDateString()
+    }));
+    
+    githubReposLoaded = true;
+    console.log(`Loaded ${portfolioData.projects.length} repositories from GitHub`);
+    
+  } catch (error) {
+    console.error('Error fetching GitHub repos:', error);
+    // Add default repos as fallback
+    portfolioData.projects = [
+      {
+        name: 'luciancj.github.io',
+        desc: 'Terminal Portfolio Website',
+        link: 'https://github.com/luciancj/luciancj.github.io',
+        repo: 'luciancj/luciancj.github.io'
+      }
+    ];
+    githubReposLoaded = true;
+  }
+}
+
 // File system command handlers
 function handleLs() {
   if (currentPath === '~') {
     addOutput('projects/', palette.SELECT);
   } else if (currentPath === '~/projects') {
-    if (portfolioData.projects.length === 0) {
+    if (!githubReposLoaded) {
+      addOutput('Loading repositories from GitHub...', palette.SELECT);
+    } else if (portfolioData.projects.length === 0) {
       addOutput('(empty)');
     } else {
+      addOutput(`Total: ${portfolioData.projects.length} repositories`, palette.SELECT);
+      addOutput('');
       portfolioData.projects.forEach(proj => {
-        addOutput(proj.name + '/', palette.SELECT);
+        let info = proj.name;
+        if (proj.language) info += ` [${proj.language}]`;
+        if (proj.stars > 0) info += ` ⭐${proj.stars}`;
+        addOutput(info + '/', palette.FG);
       });
     }
   } else if (currentRepo) {
