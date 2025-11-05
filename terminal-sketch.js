@@ -108,17 +108,17 @@ function setup() {
   // Calculate canvas size based on screen size
   let canvasWidth, canvasHeight;
   
-  // For large screens (desktop), ALWAYS maintain 16:9 aspect ratio
+  // For large screens (desktop), ALWAYS maintain 4:3 aspect ratio (classic CRT ratio)
   // For mobile/small screens, use full window
   if (windowWidth > 1024) {
-    // Desktop: strictly maintain 16:9 aspect ratio
+    // Desktop: strictly maintain 4:3 aspect ratio
     // Calculate based on 75% of available space
     let maxWidth = windowWidth * 0.75;
     let maxHeight = windowHeight * 0.75;
     
     // Always calculate both options and pick the one that fits
-    let widthBasedHeight = maxWidth / (16/9);
-    let heightBasedWidth = maxHeight * (16/9);
+    let widthBasedHeight = maxWidth / (4/3);
+    let heightBasedWidth = maxHeight * (4/3);
     
     // Use whichever dimension fits within the constraints
     if (widthBasedHeight <= maxHeight) {
@@ -818,17 +818,17 @@ function windowResized() {
   // Calculate new canvas size based on screen size
   let canvasWidth, canvasHeight;
   
-  // For large screens (desktop), ALWAYS maintain 16:9 aspect ratio
+  // For large screens (desktop), ALWAYS maintain 4:3 aspect ratio (classic CRT ratio)
   // For mobile/small screens, use full window
   if (windowWidth > 1024) {
-    // Desktop: strictly maintain 16:9 aspect ratio
+    // Desktop: strictly maintain 4:3 aspect ratio
     // Calculate based on 75% of available space
     let maxWidth = windowWidth * 0.75;
     let maxHeight = windowHeight * 0.75;
     
     // Always calculate both options and pick the one that fits
-    let widthBasedHeight = maxWidth / (16/9);
-    let heightBasedWidth = maxHeight * (16/9);
+    let widthBasedHeight = maxWidth / (4/3);
+    let heightBasedWidth = maxHeight * (4/3);
     
     // Use whichever dimension fits within the constraints
     if (widthBasedHeight <= maxHeight) {
