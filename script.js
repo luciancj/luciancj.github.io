@@ -21,10 +21,10 @@ const loadingText = document.getElementById('loading-text');
 console.log('DOM elements:', { textarea, loading, loadingProgress, loadingText });
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   console.log('DOMContentLoaded fired');
   try {
-    initWebGL();
+    await initWebGL();
     simulateLoading();
   } catch (error) {
     console.error('Initialization error:', error);
