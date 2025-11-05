@@ -77,13 +77,15 @@ def process_image(input_path, output_path, palette='mobile', add_scanlines=True,
             # Calculate brightness
             brightness = (r + g + b) / 3 / 255.0
             
-            # Apply foreground color based on brightness
-            if brightness > 0.1:  # Not black
-                # Interpolate between bg and fg based on brightness
-                new_r = int(bg_color[0] + (fg_color[0] - bg_color[0]) * brightness)
-                new_g = int(bg_color[1] + (fg_color[1] - bg_color[1]) * brightness)
-                new_b = int(bg_color[2] + (fg_color[2] - bg_color[2]) * brightness)
-                result_data[y, x] = [new_r, new_g, new_b, int(a * brightness)]
+            # Make it much brighter - boost the brightness significantly
+            if brightness > 0.05:  # Almost any non-transparent pixel
+                # Use full foreground color for maximum brightness
+                brightness_boost = min(1.0, brightness * 3.0)  # Triple the brightness
+                new_r = int(fg_color[0] * brightness_boost)
+                new_g = int(fg_color[1] * brightness_boost)
+                new_b = int(fg_color[2] * brightness_boost)
+                # Keep full opacity for visible pixels
+                result_data[y, x] = [new_r, new_g, new_b, 255]
             elif not transparent_bg:
                 result_data[y, x] = [bg_color[0], bg_color[1], bg_color[2], a]
     
