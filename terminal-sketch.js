@@ -63,7 +63,7 @@ const portfolioData = {
 };
 
 // Logo configuration
-const LOGO_PATH = 'images/bme-logo.png';
+const LOGO_PATH = 'images/bme-logo-crt.png';
 
 function preload() {
   crtShader = loadShader('shaders/crt.vert.glsl', 'shaders/crt.frag.glsl');
