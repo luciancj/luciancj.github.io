@@ -534,12 +534,16 @@ function showTree() {
 
 // ===== THREE.JS / WEBGL BACKGROUND =====
 async function initWebGL() {
+  console.log('🎮 Initializing WebGL with CRT bulge effect...');
+  
   try {
-    // Load shaders
-    const vertexShader = await fetch('./shaders/vertex.vert').then(r => r.text());
-    const noiseFragmentShader = await fetch('./shaders/noise.frag').then(r => r.text());
-    
     const canvas = document.querySelector('.webgl');
+    if (!canvas) {
+      console.error('❌ Canvas not found!');
+      return;
+    }
+    
+    console.log('✅ Canvas found, creating scene...');
     
     // ===== MAIN SCENE =====
     const scene = new THREE.Scene();
@@ -562,7 +566,11 @@ async function initWebGL() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
+    console.log('✅ Renderer created');
+    
     // ===== CURVED SCREEN WITH BULGE EFFECT =====
+    console.log('Creating curved CRT screen...');
+    
     // Create a sphere geometry for the CRT bulge effect
     const screenGeometry = new THREE.SphereGeometry(2, 64, 64, 0, Math.PI * 0.6, 0, Math.PI * 0.6);
     
@@ -638,6 +646,8 @@ async function initWebGL() {
     screenMesh.rotation.y = -Math.PI * 0.3;
     scene.add(screenMesh);
     
+    console.log('✅ Curved screen added to scene');
+    
     // ===== PARTICLES WITH DEPTH =====
     const particlesGeometry = new THREE.BufferGeometry();
     const particlesCount = 2000;
@@ -671,6 +681,8 @@ async function initWebGL() {
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
     
+    console.log('✅ Particles added');
+    
     // ===== OSCILLOSCOPE LINES =====
     const lineGeometry = new THREE.BufferGeometry();
     const linePoints = 200;
@@ -687,15 +699,17 @@ async function initWebGL() {
     const lineMaterial = new THREE.LineBasicMaterial({
       color: 0x00ff00,
       transparent: true,
-      opacity: 0.8,
-      linewidth: 2
+      opacity: 0.8
     });
     
     const oscilloscopeLine = new THREE.Line(lineGeometry, lineMaterial);
     scene.add(oscilloscopeLine);
     
-    // ===== POST-PROCESSING WITH SHADERS =====
-    const resolution = 1024;
+    console.log('✅ Oscilloscope line added');
+    
+    // ===== POST-PROCESSING WITH BLOOM =====
+    console.log('Setting up bloom pass...');
+    
     const composer = new EffectComposer(renderer);
     
     const renderPass = new RenderPass(scene, camera);
@@ -709,6 +723,8 @@ async function initWebGL() {
       0.85  // threshold
     );
     composer.addPass(bloomPass);
+    
+    console.log('✅ Post-processing configured');
     
     // ===== ANIMATION =====
     const clock = new THREE.Clock();
@@ -750,6 +766,8 @@ async function initWebGL() {
     
     animate();
     
+    console.log('✅ Animation started!');
+    
     // Handle resize
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -758,9 +776,10 @@ async function initWebGL() {
       composer.setSize(window.innerWidth, window.innerHeight);
     });
     
-    console.log('WebGL initialized with CRT bulge effect');
+    console.log('🎉 WebGL initialized successfully with CRT bulge effect!');
   } catch (error) {
-    console.error('WebGL initialization failed:', error);
+    console.error('❌ WebGL initialization failed:', error);
+    console.error('Error stack:', error.stack);
   }
 }
 
