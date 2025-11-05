@@ -62,8 +62,8 @@ const portfolioData = {
   ]
 };
 
-// Logo configuration - change this to use your own logo
-const LOGO_PATH = 'images/lumon.png'; // Change to 'images/muegyetem-crt.png' for university logo
+// Logo configuration
+const LOGO_PATH = 'images/bme-logo.png';
 
 function preload() {
   crtShader = loadShader('shaders/crt.vert.glsl', 'shaders/crt.frag.glsl');
