@@ -308,6 +308,7 @@ function executeCommand(cmd) {
     addOutput('  contact   - Contact information');
     addOutput('  skills    - My technical skills');
     addOutput('  ls        - List files/directories');
+    addOutput('  tree      - Show directory tree');
     addOutput('  cd <dir>  - Change directory');
     addOutput('  pwd       - Print working directory');
     addOutput('  open <file> - Open file on GitHub');
@@ -322,6 +323,10 @@ function executeCommand(cmd) {
   else if (cmd === 'ls') {
     addOutput('');
     handleLs();
+  }
+  else if (cmd === 'tree') {
+    addOutput('');
+    handleTree();
   }
   else if (cmd.startsWith('cd ')) {
     let target = originalCmd.substring(3).trim();
@@ -624,6 +629,47 @@ function handleLs() {
     addOutput('  index.html');
     addOutput('  package.json');
     addOutput('  .gitignore');
+  }
+  addOutput('');
+}
+
+function handleTree() {
+  if (currentPath === '~') {
+    addOutput('~', palette.SELECT);
+    addOutput('└── projects/', palette.FG);
+    if (portfolioData.projects.length > 0) {
+      portfolioData.projects.forEach((proj, i) => {
+        let isLast = i === portfolioData.projects.length - 1;
+        let prefix = isLast ? '    └── ' : '    ├── ';
+        addOutput(prefix + proj.name + '/', palette.FG);
+      });
+    }
+  } else if (currentPath === '~/projects') {
+    addOutput('~/projects', palette.SELECT);
+    if (portfolioData.projects.length === 0) {
+      addOutput('(empty)');
+    } else {
+      portfolioData.projects.forEach((proj, i) => {
+        let isLast = i === portfolioData.projects.length - 1;
+        let prefix = isLast ? '└── ' : '├── ';
+        addOutput(prefix + proj.name + '/', palette.FG);
+      });
+    }
+  } else if (currentRepo) {
+    let repoName = currentPath.split('/').pop();
+    addOutput(currentPath, palette.SELECT);
+    addOutput('├── README.md', palette.FG);
+    addOutput('├── index.html', palette.FG);
+    addOutput('├── package.json', palette.FG);
+    addOutput('├── src/', palette.FG);
+    addOutput('│   ├── components/', palette.FG);
+    addOutput('│   ├── styles/', palette.FG);
+    addOutput('│   └── utils/', palette.FG);
+    addOutput('├── public/', palette.FG);
+    addOutput('│   └── assets/', palette.FG);
+    addOutput('└── .gitignore', palette.FG);
+    addOutput('');
+    addOutput('Use "open <filename>" to view files on GitHub', palette.SELECT);
   }
   addOutput('');
 }
