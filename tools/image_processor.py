@@ -78,16 +78,13 @@ def process_image(input_path, output_path, palette='mobile', add_scanlines=True,
             brightness = (r + g + b) / 3 / 255.0
             inverted_brightness = 1.0 - brightness  # Invert: black becomes white
             
-            # Apply foreground color to inverted brightness
-            if inverted_brightness > 0.1:  # Only process pixels that were dark enough
-                # Apply the cyan/green color to the inverted (now bright) pixels
-                new_r = int(fg_color[0] * inverted_brightness)
-                new_g = int(fg_color[1] * inverted_brightness)
-                new_b = int(fg_color[2] * inverted_brightness)
-                # Keep full opacity
-                result_data[y, x] = [new_r, new_g, new_b, 255]
-            elif not transparent_bg:
-                result_data[y, x] = [bg_color[0], bg_color[1], bg_color[2], a]
+            # Apply foreground color to ALL non-transparent pixels (keep all details)
+            # Apply the cyan/green color to the inverted brightness
+            new_r = int(fg_color[0] * inverted_brightness)
+            new_g = int(fg_color[1] * inverted_brightness)
+            new_b = int(fg_color[2] * inverted_brightness)
+            # Keep original alpha to preserve all details
+            result_data[y, x] = [new_r, new_g, new_b, a]
     
     result = Image.fromarray(result_data)
     
