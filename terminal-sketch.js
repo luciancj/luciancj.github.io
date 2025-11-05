@@ -9,17 +9,34 @@ const mobilePalette = {
   BG: '#010A13',
   FG: '#ABFFE9',
   SELECT: '#EEFFFF',
+  LEVELS: {
+    WO: '#00FF94',
+    FC: '#FF6B9D',
+    DR: '#FFC600',
+    MA: '#00D9FF'
+  }
 };
 
 const shaderPalette = {
   BG: '#111111',
   FG: '#99f',
   SELECT: '#fff',
+  LEVELS: {
+    WO: '#00FF94',
+    FC: '#FF6B9D',
+    DR: '#FFC600',
+    MA: '#00D9FF'
+  }
 };
 
 let palette = mobilePalette;
 let smaller;
 let buffer = 100;
+
+// Bin system
+const keys = ['WO', 'FC', 'DR', 'MA'];
+let bins = [];
+let levelH;
 
 // Terminal state
 let terminalOutput = [];
@@ -32,7 +49,7 @@ let lumon;
 
 // Portfolio data
 const portfolioData = {
-  name: 'Lucian Cojocaru',
+  name: 'Guest User',
   role: 'Developer',
   email: 'your.email@example.com',
   github: 'https://github.com/luciancj',
@@ -52,35 +69,41 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  frameRate(30);
-
-  // create a downscaled graphics buffer to draw to
-  g = createGraphics(windowWidth, windowHeight);
-
-  // We don't want to use shader on mobile
-  useShader = !isTouchScreenDevice();
-
-  // The shader boosts colour values so we reset the palette if using shader
-  if (useShader) {
-    palette = shaderPalette;
-  }
-
-  // force pixel density to 1 to improve perf on retina screens
   pixelDensity(1);
-
-  // p5 graphics element to draw our shader output to
-  shaderLayer = createGraphics(g.width, g.height, WEBGL);
-  shaderLayer.noStroke();
+  
+  // Initialize graphics buffer for main drawing
+  g = createGraphics(width, height);
+  g.pixelDensity(1);
+  
+  // Initialize shader layer (WEBGL required for shaders)
+  shaderLayer = createGraphics(width, height, WEBGL);
+  shaderLayer.pixelDensity(1);
   crtShader.setUniform('u_resolution', [g.width, g.height]);
-
+  
   smaller = min(g.width, g.height);
-
-  // Welcome message
-  addOutput('='.repeat(60), palette.FG);
-  addOutput('WELCOME TO LUCIAN COJOCARU TERMINAL v1.0', palette.SELECT);
-  addOutput('='.repeat(60), palette.FG);
+  
+  // Determine if we should use shaders based on device
+  useShader = !isTouchScreenDevice();
+  palette = useShader ? shaderPalette : mobilePalette;
+  
+  // Initialize bins
+  levelH = buffer * 1.7;
+  let binWidth = g.width / 5;
+  for (let i = 0; i < 5; i++) {
+    bins.push(new Bin(binWidth, i, 100, {
+      WO: floor(random(0, 25)),
+      FC: floor(random(0, 25)),
+      DR: floor(random(0, 25)),
+      MA: floor(random(0, 25))
+    }));
+  }
+  
+  // Setup terminal
+  addOutput('LUMON INDUSTRIES');
+  addOutput('Macrodata Refinement Terminal v1.0');
   addOutput('');
-  addOutput('Type "help" for available commands', palette.FG);
+  addOutput('Welcome to the terminal.');
+  addOutput('Type "help" for available commands');
   addOutput('');
 }
 
@@ -97,6 +120,14 @@ function draw() {
   
   // Draw footer (like the game's bottom bar)
   drawBottom();
+  
+  // Draw bins
+  for (let bin of bins) {
+    bin.show();
+  }
+  
+  // Draw custom cursor
+  drawCursor(mouseX, mouseY);
   
   // Draw Lumon logo
   g.imageMode(CORNER);
@@ -138,9 +169,6 @@ function drawTop() {
   g.stroke(palette.BG);
   g.text(portfolioData.name, wx + 20, 50);
   
-  // Show "Terminal" on right
-  g.textAlign(RIGHT, CENTER);
-  g.text('Terminal', wx + w - 20, 50);
   
   g.fill(palette.BG);
   g.stroke(palette.FG);
@@ -332,4 +360,130 @@ function windowResized() {
   shaderLayer.resizeCanvas(windowWidth, windowHeight);
   crtShader.setUniform('u_resolution', [g.width, g.height]);
   smaller = min(g.width, g.height);
+  
+  // Resize bins
+  let binWidth = g.width / 5;
+  for (let i = 0; i < bins.length; i++) {
+    bins[i].resize(binWidth);
+  }
+}
+
+// Custom cursor from original game
+function drawCursor(xPos, yPos) {
+  // Don't draw when the cursor is at 0,0
+  if (xPos == 0 && yPos == 0) {
+    return;
+  }
+  
+  g.push();
+  g.translate(xPos + 10, yPos + 10);
+  g.scale(1.2);
+  g.rotate(-PI / 5);
+  
+  g.fill(palette.BG);
+  g.stroke(palette.FG);
+  g.strokeWeight(2);
+  g.beginShape();
+  g.vertex(0, 0);
+  g.vertex(10, 10);
+  g.vertex(6, 10);
+  g.vertex(9, 18);
+  g.vertex(6, 19);
+  g.vertex(3, 11);
+  g.vertex(0, 11);
+  g.endShape(CLOSE);
+  g.pop();
+}
+
+// Simplified Bin class for portfolio display
+class Bin {
+  constructor(w, i, goal, levels) {
+    this.w = w;
+    this.i = i;
+    this.x = i * w + w * 0.5;
+    this.y = g.height - buffer * 0.75;
+    this.goal = goal;
+    this.levelGoal = this.goal / 4;
+    this.levels = levels ?? {
+      WO: 0,
+      FC: 0,
+      DR: 0,
+      MA: 0,
+    };
+    this.count = Object.values(this.levels).reduce((prev, curr) => prev + curr);
+  }
+
+  show() {
+    g.push();
+    this.count = this.levels.WO + this.levels.FC + this.levels.DR + this.levels.MA;
+    this.count = constrain(this.count, 0, this.goal);
+    let perc = this.count / this.goal;
+    g.rectMode(CENTER);
+    let rw = this.w - this.w * 0.25;
+
+    this.drawBottomOutlines(rw, buffer);
+    this.drawProgressBar(rw, buffer, perc);
+    this.writeIndex();
+    this.writePercentage(perc, rw, buffer);
+    
+    g.pop();
+  }
+
+  drawBottomOutlines(rw, buffer) {
+    // Extra layer to block tray sliding
+    g.noStroke();
+    g.fill(palette.BG);
+    g.rectMode(CORNER);
+    let extra = 4;
+    g.rect(
+      this.x - rw * 0.5 - extra,
+      this.y - buffer * 0.125,
+      rw + extra * 2,
+      buffer
+    );
+
+    g.stroke(palette.FG);
+    g.strokeWeight(1);
+    g.fill(palette.BG);
+
+    g.rectMode(CENTER);
+    g.rect(this.x, this.y, rw, buffer * 0.25);
+    g.rect(this.x, this.y + buffer * 0.3, rw, buffer * 0.25);
+  }
+
+  drawProgressBar(rw, buffer, perc) {
+    g.fill(palette.FG);
+    g.noStroke();
+    g.rectMode(CORNER);
+
+    let h = buffer * 0.25;
+    g.rect(this.x - rw * 0.5, this.y + buffer * 0.3 - h * 0.5, rw * perc, h);
+  }
+
+  writeIndex() {
+    g.textSize(18);
+    g.textFont('Arial');
+    g.textAlign(CENTER, CENTER);
+    g.fill(palette.FG);
+    g.noStroke();
+    g.text(nf(this.i, 2, 0), this.x, this.y);
+  }
+
+  writePercentage(perc, rw, buffer) {
+    g.textAlign(LEFT, CENTER);
+    g.stroke(palette.FG);
+    g.strokeWeight(2);
+    g.fill(palette.BG);
+    g.text(
+      `${floor(nf(100 * perc, 2, 0))}%`,
+      this.x - rw * 0.45,
+      this.y + buffer * 0.3
+    );
+  }
+
+  resize(newW) {
+    this.w = newW;
+    this.x = this.i * newW + newW * 0.5;
+    this.y = g.height - buffer * 0.75;    
+  }
 }

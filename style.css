@@ -19,7 +19,7 @@ body {
 canvas {
   display: block;
   touch-action: none;
-  cursor: default;
+  cursor: none;
 }
 
 div {
