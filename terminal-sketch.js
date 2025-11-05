@@ -108,21 +108,28 @@ function setup() {
   // Calculate canvas size based on screen size
   let canvasWidth, canvasHeight;
   
-  // For large screens (desktop), maintain 16:9 aspect ratio at 75% size
+  // For large screens (desktop), ALWAYS maintain 16:9 aspect ratio
   // For mobile/small screens, use full window
   if (windowWidth > 1024) {
-    // Desktop: simple 16:9 ratio calculation
-    let targetWidth = windowWidth * 0.75;
-    let targetHeight = targetWidth / (16/9);
+    // Desktop: strictly maintain 16:9 aspect ratio
+    // Calculate based on 75% of available space
+    let maxWidth = windowWidth * 0.75;
+    let maxHeight = windowHeight * 0.75;
     
-    // If calculated height is too tall for window, use full height calculation instead
-    if (targetHeight > windowHeight * 0.75) {
-      targetHeight = windowHeight * 0.75;
-      targetWidth = targetHeight * (16/9);
+    // Always calculate both options and pick the one that fits
+    let widthBasedHeight = maxWidth / (16/9);
+    let heightBasedWidth = maxHeight * (16/9);
+    
+    // Use whichever dimension fits within the constraints
+    if (widthBasedHeight <= maxHeight) {
+      // Width-based calculation fits
+      canvasWidth = maxWidth;
+      canvasHeight = widthBasedHeight;
+    } else {
+      // Height-based calculation fits
+      canvasWidth = heightBasedWidth;
+      canvasHeight = maxHeight;
     }
-    
-    canvasWidth = targetWidth;
-    canvasHeight = targetHeight;
   } else {
     // Mobile: use full window
     canvasWidth = windowWidth;
@@ -811,21 +818,28 @@ function windowResized() {
   // Calculate new canvas size based on screen size
   let canvasWidth, canvasHeight;
   
-  // For large screens (desktop), maintain 16:9 aspect ratio at 75% size
+  // For large screens (desktop), ALWAYS maintain 16:9 aspect ratio
   // For mobile/small screens, use full window
   if (windowWidth > 1024) {
-    // Desktop: simple 16:9 ratio calculation
-    let targetWidth = windowWidth * 0.75;
-    let targetHeight = targetWidth / (16/9);
+    // Desktop: strictly maintain 16:9 aspect ratio
+    // Calculate based on 75% of available space
+    let maxWidth = windowWidth * 0.75;
+    let maxHeight = windowHeight * 0.75;
     
-    // If calculated height is too tall for window, use full height calculation instead
-    if (targetHeight > windowHeight * 0.75) {
-      targetHeight = windowHeight * 0.75;
-      targetWidth = targetHeight * (16/9);
+    // Always calculate both options and pick the one that fits
+    let widthBasedHeight = maxWidth / (16/9);
+    let heightBasedWidth = maxHeight * (16/9);
+    
+    // Use whichever dimension fits within the constraints
+    if (widthBasedHeight <= maxHeight) {
+      // Width-based calculation fits
+      canvasWidth = maxWidth;
+      canvasHeight = widthBasedHeight;
+    } else {
+      // Height-based calculation fits
+      canvasWidth = heightBasedWidth;
+      canvasHeight = maxHeight;
     }
-    
-    canvasWidth = targetWidth;
-    canvasHeight = targetHeight;
   } else {
     // Mobile: use full window
     canvasWidth = windowWidth;
