@@ -19,11 +19,11 @@ body {
 canvas {
   display: block;
   touch-action: none;
-  cursor: none;
+  cursor: default;
 }
 
 div {
-  cursor: pointer;
+  cursor: default;
 }
 
 .loadingclass {
