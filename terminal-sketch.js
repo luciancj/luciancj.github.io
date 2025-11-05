@@ -178,7 +178,7 @@ function drawTop() {
   g.stroke(palette.FG);
   g.strokeWeight(4);
   g.textSize(32);
-  g.textFont('Arial');
+  g.textFont('Courier');
   g.textAlign(LEFT, CENTER);
   
   // Show name on left
@@ -654,7 +654,7 @@ class Bin {
 
   writeIndex() {
     g.textSize(18);
-    g.textFont('Arial');
+    g.textFont('Courier');
     g.textAlign(CENTER, CENTER);
     g.fill(palette.FG);
     g.noStroke();
