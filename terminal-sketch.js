@@ -19,6 +19,7 @@ const shaderPalette = {
 
 let palette = mobilePalette;
 let smaller;
+let buffer = 100;
 
 // Terminal state
 let terminalOutput = [];
@@ -27,6 +28,7 @@ let commandHistory = [];
 let historyIndex = -1;
 let cursorBlink = true;
 let lastBlinkTime = 0;
+let lumon;
 
 // Portfolio data
 const portfolioData = {
@@ -45,6 +47,7 @@ const portfolioData = {
 
 function preload() {
   crtShader = loadShader('shaders/crt.vert.glsl', 'shaders/crt.frag.glsl');
+  lumon = loadImage('images/lumon.png');
 }
 
 function setup() {
@@ -84,9 +87,21 @@ function setup() {
 function draw() {
   g.colorMode(RGB);
   g.background(palette.BG);
+  g.textFont('Courier');
+  
+  // Draw header (like the game's top bar)
+  drawTop();
   
   // Draw terminal content
   drawTerminal();
+  
+  // Draw footer (like the game's bottom bar)
+  drawBottom();
+  
+  // Draw Lumon logo
+  g.imageMode(CORNER);
+  if (!useShader) g.tint(mobilePalette.FG);
+  g.image(lumon, g.width - lumon.width, 0);
 
   // Apply CRT shader if enabled
   if (useShader) {
@@ -101,6 +116,47 @@ function draw() {
   }
 }
 
+function drawTop() {
+  g.rectMode(CORNER);
+  g.stroke(palette.FG);
+  let w = g.width * 0.9;
+  g.strokeWeight(2);
+  let wx = (g.width - w) * 0.5;
+  g.noFill();
+  g.rect(wx, 25, w, 50);
+  g.noStroke();
+  
+  g.fill(palette.BG);
+  g.stroke(palette.FG);
+  g.strokeWeight(4);
+  g.textSize(32);
+  g.textFont('Arial');
+  g.textAlign(LEFT, CENTER);
+  
+  // Show name on left
+  g.fill(palette.FG);
+  g.stroke(palette.BG);
+  g.text(portfolioData.name, wx + 20, 50);
+  
+  // Show "Terminal" on right
+  g.textAlign(RIGHT, CENTER);
+  g.text('Terminal', wx + w - 20, 50);
+  
+  g.fill(palette.BG);
+  g.stroke(palette.FG);
+}
+
+function drawBottom() {
+  g.rectMode(CORNER);
+  g.fill(palette.FG);
+  g.rect(0, g.height - 20, g.width, 20);
+  g.fill(palette.BG);
+  g.textFont('Courier');
+  g.textAlign(CENTER, CENTER);
+  g.textSize(14);
+  g.text('Type "help" for commands', g.width * 0.5, g.height - 10);
+}
+
 function drawTerminal() {
   g.fill(palette.FG);
   g.noStroke();
@@ -108,18 +164,26 @@ function drawTerminal() {
   g.textSize(16);
   g.textAlign(LEFT, TOP);
 
-  let y = 30;
+  let y = buffer; // Start after top bar
   let x = 30;
   let lineHeight = 24;
+  let maxY = g.height - buffer; // Stop before bottom bar
 
-  // Draw output
-  for (let line of terminalOutput) {
+  // Draw output (only lines that fit in the terminal area)
+  let startIndex = Math.max(0, terminalOutput.length - Math.floor((maxY - y - lineHeight * 2) / lineHeight));
+  for (let i = startIndex; i < terminalOutput.length; i++) {
+    if (y + lineHeight > maxY - lineHeight * 2) break;
+    let line = terminalOutput[i];
     g.fill(line.color);
     g.text(line.text, x, y);
     y += lineHeight;
   }
 
-  // Draw input line
+  // Draw input line (make sure it's always visible)
+  if (y > maxY - lineHeight * 2) {
+    y = maxY - lineHeight * 2;
+  }
+  
   g.fill(palette.SELECT);
   g.text('> ', x, y);
   
