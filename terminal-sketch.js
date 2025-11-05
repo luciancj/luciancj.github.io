@@ -111,9 +111,9 @@ function setup() {
   // For large screens (desktop), maintain aspect ratio similar to screenshot
   // For mobile/small screens, use full window
   if (windowWidth > 1024) {
-    // Desktop: use 16:9 aspect ratio, max 90% of window size
-    let maxWidth = windowWidth * 0.9;
-    let maxHeight = windowHeight * 0.9;
+    // Desktop: use 16:9 aspect ratio, but smaller resolution for retro look
+    let maxWidth = windowWidth * 0.75; // Reduced from 0.9 to make it smaller
+    let maxHeight = windowHeight * 0.75;
     
     // Calculate dimensions maintaining 16:9 ratio
     if (maxWidth / maxHeight > 16/9) {
@@ -816,9 +816,9 @@ function windowResized() {
   // For large screens (desktop), maintain aspect ratio
   // For mobile/small screens, use full window
   if (windowWidth > 1024) {
-    // Desktop: use 16:9 aspect ratio, max 90% of window size
-    let maxWidth = windowWidth * 0.9;
-    let maxHeight = windowHeight * 0.9;
+    // Desktop: use 16:9 aspect ratio, smaller size
+    let maxWidth = windowWidth * 0.75; // Reduced from 0.9
+    let maxHeight = windowHeight * 0.75;
     
     // Calculate dimensions maintaining 16:9 ratio
     if (maxWidth / maxHeight > 16/9) {
