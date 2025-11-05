@@ -368,14 +368,60 @@ function windowResized() {
   }
 }
 
-// Custom cursor from original game (exact implementation)
+// Custom cursor from original game (exact implementation with CRT curvature)
 function drawCursor(xPos, yPos) {
   // prevents the cursor appearing in top left corner on page load
   if (xPos == 0 && yPos == 0) return;
+  
+  // Wrap cursor position around screen edges
+  let wrappedX = xPos;
+  let wrappedY = yPos;
+  
+  // Horizontal wrapping
+  if (wrappedX < 0) wrappedX = g.width + wrappedX;
+  if (wrappedX > g.width) wrappedX = wrappedX - g.width;
+  
+  // Vertical wrapping
+  if (wrappedY < 0) wrappedY = g.height + wrappedY;
+  if (wrappedY > g.height) wrappedY = wrappedY - g.height;
+  
+  // Apply CRT curvature distortion if shader is enabled
+  let distortedX = wrappedX;
+  let distortedY = wrappedY;
+  let scaleX = 1.0;
+  let scaleY = 1.0;
+  
+  if (useShader) {
+    // Normalize coordinates to 0-1
+    let uvX = wrappedX / g.width;
+    let uvY = wrappedY / g.height;
+    
+    // Convert to -1 to 1 range (same as shader)
+    let normX = uvX * 2.0 - 1.0;
+    let normY = uvY * 2.0 - 1.0;
+    
+    // Apply curvature distortion (matching shader's curveRemapUV)
+    const curvature = 4.5;
+    let offsetX = abs(normY) / curvature;
+    let offsetY = abs(normX) / curvature;
+    
+    let distortX = normX + normX * offsetX * offsetX;
+    let distortY = normY + normY * offsetY * offsetY;
+    
+    // Convert back to screen space
+    distortedX = (distortX * 0.5 + 0.5) * g.width;
+    distortedY = (distortY * 0.5 + 0.5) * g.height;
+    
+    // Calculate scale distortion based on position
+    // Cursor gets stretched near edges
+    scaleX = 1.0 + abs(normX) * 0.3;
+    scaleY = 1.0 + abs(normY) * 0.3;
+  }
+  
   g.push();
   // this offset makes the box draw from point of cursor 
-  g.translate(xPos + 10, yPos + 10);
-  g.scale(1.2);
+  g.translate(distortedX + 10, distortedY + 10);
+  g.scale(1.2 * scaleX, 1.2 * scaleY);
   g.fill(palette.BG);
   g.stroke(palette.FG);
   g.strokeWeight(3);
