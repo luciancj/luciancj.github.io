@@ -147,7 +147,8 @@ function drawTop() {
   g.strokeWeight(2);
   let wx = (g.width - w) * 0.5;
   g.noFill();
-  g.rect(wx, 25, w, 50);
+  let boxHeight = 70; // Increased from 50 to 70 for better logo fit
+  g.rect(wx, 25, w, boxHeight);
   g.noStroke();
   
   g.fill(palette.BG);
@@ -160,7 +161,7 @@ function drawTop() {
   // Show name on left
   g.fill(palette.FG);
   g.stroke(palette.BG);
-  g.text(portfolioData.name, wx + 20, 50);
+  g.text(portfolioData.name, wx + 20, 25 + boxHeight / 2); // Center text in taller box
   
   // Draw BME logo inside the box on the right
   g.push();
@@ -168,7 +169,7 @@ function drawTop() {
   g.tint(palette.FG);
   // Position logo inside the box, aligned to the right with padding
   let logoX = wx + w - lumon.width - 25; // More padding to fit within box bounds
-  let logoY = 25 + (50 - lumon.height) / 2; // Center vertically in the 50px box
+  let logoY = 25 + (boxHeight - lumon.height) / 2; // Center vertically in the taller box
   g.image(lumon, logoX, logoY);
   g.pop();
   
