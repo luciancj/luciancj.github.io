@@ -124,13 +124,15 @@ function draw() {
   // Draw bins and footer together (like the game's bottom section)
   drawBottom();
   
+  // Draw BME logo in top right corner
+  g.push();
+  g.imageMode(CORNER);
+  g.tint(palette.FG); // Apply cyan tint for both mobile and shader modes
+  g.image(lumon, g.width - lumon.width - 10, 10);
+  g.pop();
+  
   // Draw custom cursor
   drawCursor(mouseX, mouseY);
-  
-  // Draw Lumon logo
-  g.imageMode(CORNER);
-  if (!useShader) g.tint(mobilePalette.FG);
-  g.image(lumon, g.width - lumon.width, 0);
 
   // Apply CRT shader if enabled
   if (useShader) {
