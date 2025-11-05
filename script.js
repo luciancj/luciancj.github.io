@@ -25,10 +25,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('DOMContentLoaded fired');
   try {
     await initWebGL();
-    simulateLoading();
+    console.log('✅ WebGL initialization complete, starting loading simulation');
   } catch (error) {
-    console.error('Initialization error:', error);
+    console.error('⚠️ WebGL initialization error (continuing anyway):', error);
   }
+  
+  // Always run loading simulation regardless of WebGL success
+  simulateLoading();
 });
 
 // ===== LOADING SIMULATION =====
