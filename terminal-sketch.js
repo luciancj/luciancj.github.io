@@ -36,7 +36,7 @@ let buffer = 120; // Increased to add padding between header box and terminal te
 // CRT power-on effect
 let powerOnProgress = 0;
 let powerOnComplete = false;
-let powerOnDuration = 120; // frames (about 2 seconds at 60fps)
+let powerOnDuration = 240; // frames (about 4 seconds at 60fps)
 
 // Oscilloscope effects
 let scanlineY = 0;
