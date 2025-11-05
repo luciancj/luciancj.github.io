@@ -62,9 +62,12 @@ const portfolioData = {
   ]
 };
 
+// Logo configuration - change this to use your own logo
+const LOGO_PATH = 'images/lumon.png'; // Change to 'images/muegyetem-crt.png' for university logo
+
 function preload() {
   crtShader = loadShader('shaders/crt.vert.glsl', 'shaders/crt.frag.glsl');
-  lumon = loadImage('images/lumon.png');
+  lumon = loadImage(LOGO_PATH);
 }
 
 function setup() {
