@@ -46,6 +46,7 @@ let historyIndex = -1;
 let cursorBlink = true;
 let lastBlinkTime = 0;
 let lumon;
+let scrollOffset = 0; // For terminal scrolling
 
 // Portfolio data
 const portfolioData = {
@@ -207,9 +208,18 @@ function drawTerminal() {
   let lineHeight = 24;
   let maxY = g.height - buffer; // Stop before bottom bar
 
-  // Draw output (only lines that fit in the terminal area)
-  let startIndex = Math.max(0, terminalOutput.length - Math.floor((maxY - y - lineHeight * 2) / lineHeight));
-  for (let i = startIndex; i < terminalOutput.length; i++) {
+  // Calculate max visible lines
+  let maxVisibleLines = Math.floor((maxY - y - lineHeight * 2) / lineHeight);
+  
+  // Limit scroll offset
+  let maxScroll = Math.max(0, terminalOutput.length - maxVisibleLines);
+  scrollOffset = constrain(scrollOffset, 0, maxScroll);
+  
+  // Draw output with scroll offset
+  let startIndex = scrollOffset;
+  let endIndex = Math.min(terminalOutput.length, startIndex + maxVisibleLines);
+  
+  for (let i = startIndex; i < endIndex; i++) {
     if (y + lineHeight > maxY - lineHeight * 2) break;
     let line = terminalOutput[i];
     g.fill(line.color);
@@ -249,6 +259,9 @@ function addOutput(text, color = null) {
   if (terminalOutput.length > 100) {
     terminalOutput.shift();
   }
+  
+  // Auto-scroll to bottom when new content is added
+  scrollOffset = terminalOutput.length;
 }
 
 function executeCommand(cmd) {
@@ -362,6 +375,12 @@ function keyTyped() {
     currentInput += key;
   }
   return false;
+}
+
+function mouseWheel(event) {
+  // Scroll the terminal output
+  scrollOffset += event.delta > 0 ? 1 : -1;
+  return false; // Prevent default scrolling
 }
 
 function windowResized() {
