@@ -248,7 +248,7 @@ function drawTerminal() {
   
   // Draw prompt with current path
   g.fill(palette.SELECT);
-  let prompt = currentPath + ' > ';
+  let prompt = '> ';
   g.text(prompt, x, y);
   
   g.fill(palette.FG);
