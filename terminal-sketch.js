@@ -86,9 +86,9 @@ let fileSystem = {
 
 // Portfolio data
 const portfolioData = {
-  name: 'Guest User',
-  role: 'Developer',
-  email: 'your.email@example.com',
+  name: 'Lucian Cojcaru',
+  role: 'Student',
+  email: 'lucian.private@icloud.com',
   github: 'https://github.com/luciancj',
   githubUsername: 'luciancj',
   projects: [] // Will be populated from GitHub API
