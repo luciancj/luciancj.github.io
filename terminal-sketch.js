@@ -185,23 +185,23 @@ function draw() {
   
   // CRT power-on effect
   if (!powerOnComplete) {
-    // Draw terminal content with fade-in effect (no blur for performance)
-    let progress = powerOnProgress / powerOnDuration;
-    
-    // Set global alpha based on warmup progress for fade-in effect
-    if (progress < 0.9) {
-      let fadeIn = progress / 0.9; // 0 to 1 over first 90%
-      g.push();
-      g.drawingContext.globalAlpha = fadeIn * 0.7 + 0.3; // 30% to 100% opacity
-    }
-    
+    // Draw terminal content behind the power-on effect
     drawTop();
     drawTerminal();
     drawBottom();
     drawOscilloscopeEffects();
     
+    // Apply blur to content during warmup
+    let progress = powerOnProgress / powerOnDuration;
     if (progress < 0.9) {
-      g.pop(); // Restore alpha
+      // Heavy blur that reduces as TV warms up
+      let blurAmount = 15 * (1 - progress / 0.9);
+      g.drawingContext.filter = `blur(${blurAmount}px)`;
+      // Re-draw with blur
+      let tempCanvas = g.get();
+      g.background(palette.BG);
+      g.image(tempCanvas, 0, 0);
+      g.drawingContext.filter = 'none';
     }
     
     // Draw power-on overlay effect
