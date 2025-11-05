@@ -8,7 +8,21 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <script>
-      navigator.serviceWorker.register?.('/service-worker.js').catch(() => {})
+      // Service worker registration with better update handling
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js').then(reg => {
+          // Check for updates but don't force reload
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New service worker available, but don't auto-reload
+                console.log('New version available. Refresh to update.');
+              }
+            });
+          });
+        }).catch(() => {});
+      }
     </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,8 +32,29 @@
     <meta charset="utf-8" />
   </head>
   <body>
-    <script src="terminal-sketch.js"></script>
+    <!-- Utility functions -->
     <script src="utils.js"></script>
+    
+    <!-- Configuration -->
+    <script src="js/config/theme.js"></script>
+    <script src="js/config/portfolio-data.js"></script>
+    
+    <!-- API -->
+    <script src="js/api/github.js"></script>
+    
+    <!-- Terminal -->
+    <script src="js/terminal/terminal-state.js"></script>
+    <script src="js/terminal/command-executor.js"></script>
+    
+    <!-- UI Components -->
+    <script src="js/ui/bin.js"></script>
+    
+    <!-- Effects -->
+    <script src="js/effects/crt-effects.js"></script>
+    
+    <!-- Main sketch -->
+    <script src="js/sketch.js"></script>
+    
     <div id="p5_loading" class="loadingclass">Loading...</div>
   </body>
 </html>
