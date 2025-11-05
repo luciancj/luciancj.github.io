@@ -31,7 +31,7 @@ const shaderPalette = {
 
 let palette = mobilePalette;
 let smaller;
-let buffer = 100;
+let buffer = 120; // Increased to add padding between header box and terminal text
 
 // Bin system
 const keys = ['WO', 'FC', 'DR', 'MA'];
