@@ -86,11 +86,72 @@ let fileSystem = {
 
 // Portfolio data
 const portfolioData = {
-  name: 'Lucian Cojcaru',
-  role: 'Student',
+  name: 'Lucian Cojocaru',
+  role: 'Computer Science Engineering Student',
+  specialization: 'GPU Programming, High-Performance Computing, Algorithms',
+  location: 'Budapest, Hungary',
+  education: 'Budapest University of Technology and Economics (BME)',
+  degree: 'Bachelor of Computer Science Engineering',
+  period: '2023 - 2027',
   email: 'lucian.private@icloud.com',
+  phone: '+36 70 5838 780',
   github: 'https://github.com/luciancj',
   githubUsername: 'luciancj',
+  linkedin: 'https://www.linkedin.com/in/luciancj/',
+  languages: {
+    motherTongue: 'Romanian',
+    other: 'English (C1), German (B1), Russian (A2)'
+  },
+  nationality: 'Moldovan and Romanian',
+  drivingLicenses: 'AM, A1, A2',
+  experience: {
+    title: 'Financial Operations Analyst Intern',
+    company: 'VOIS',
+    location: 'Budapest, Hungary',
+    type: 'Hybrid',
+    period: 'Jul 2024 - Sep 2024',
+    responsibilities: [
+      'Supported invoice and payment processes; ensured timeliness and accuracy',
+      'Collaborated with cross-functional teams to maintain compliance with regulations',
+      'Assisted P2P team in report generation and ad-hoc data analysis',
+      'Gained proficiency in SAP, MS Excel, and internal financial tools'
+    ]
+  },
+  skills: {
+    programming: 'C, C++, Python, Swift, SQL, HTML, CSS',
+    ml_ai: 'Machine Learning, Deep Learning, Neural Networks, Scikit-learn, SciPy',
+    gpu_hpc: 'NVIDIA CUDA, GPU Programming, High-Performance Computing',
+    cloud_devops: 'IBM Cloud, AWS, Google Cloud, CI/CD, Infrastructure as Code, Git',
+    networking: 'CCNA, Network Management, IP Protocols, Subnetting',
+    data_science: 'Data Analysis, Data Classification, Regression Analysis, Matplotlib, Bokeh',
+    databases: 'MongoDB, MySQL, PostgreSQL',
+    tools: 'Docker, CMake, LaTeX, Arduino, VS Code, SAP'
+  },
+  certifications: [
+    { name: 'CS50x: Introduction to Computer Science', issuer: 'Harvard University', year: '2025' },
+    { name: 'Fundamentals of Accelerated Computing with CUDA C/C++', issuer: 'NVIDIA', year: '2025', expires: 'Mar 2026' },
+    { name: 'Code in Place', issuer: 'Stanford University', year: '2025' },
+    { name: 'CCNA: Introduction to Networks', issuer: 'Cisco', year: '2025', url: 'https://www.credly.com/badges/8c0c51e1-2f72-4b4c-84ec-ab42878fb68b/public_url' },
+    { name: 'Developing a Google SRE Culture', issuer: 'Coursera', year: '2023' },
+    { name: 'DevOps Essentials', issuer: 'Coursera', year: '2023', url: 'https://www.credly.com/badges/ab0fc64e-276b-45cb-acb8-b5b67c434e76/public_url' },
+    { name: 'Introduction to Agile Development and Scrum (with Honors)', issuer: 'Coursera', year: '2023' },
+    { name: 'MongoDB Data Modeling Intro', issuer: 'MongoDB', year: '2023' },
+    { name: 'MongoDB and the Document Model', issuer: 'MongoDB', year: '2023' },
+    { name: 'Connecting to a MongoDB Database', issuer: 'MongoDB', year: '2022' },
+    { name: 'Getting Started with MongoDB Atlas', issuer: 'MongoDB', year: '2022' },
+    { name: 'Machine Learning with Python', issuer: 'Coursera', year: '2020', url: 'https://www.credly.com/badges/448474d2-1b64-43e2-8b59-0dba15c874b0/public_url' },
+    { name: 'Google Cloud Fundamentals: Core Infrastructure', issuer: 'Coursera', year: '2020' },
+    { name: 'Introduction to AI', issuer: 'Coursera', year: '2020' },
+    { name: 'Fundamentals of Graphic Design', issuer: 'Coursera', year: '2020' },
+    { name: 'Introduction to Programming in Swift 5', issuer: 'Coursera', year: '2020' },
+    { name: 'Technical Support Fundamentals', issuer: 'Coursera', year: '2020' }
+  ],
+  currentFocus: [
+    'Developing an Integration Calculator in C for numerical integration',
+    'Expanding expertise in NVIDIA CUDA C/C++ for accelerated computing',
+    'Exploring MongoDB data modeling and modern Java application development',
+    'Learning Google Cloud Infrastructure design patterns and microservices'
+  ],
   projects: [] // Will be populated from GitHub API
 };
 
@@ -670,18 +731,24 @@ function executeCommand(cmd) {
   if (cmd === 'help') {
     addOutput('');
     addOutput('Available commands:', palette.SELECT);
-    addOutput('  help      - Show this help message');
-    addOutput('  about     - About me');
-    addOutput('  projects  - View my projects');
-    addOutput('  contact   - Contact information');
-    addOutput('  skills    - My technical skills');
-    addOutput('  ls        - List files/directories');
-    addOutput('  tree      - Show directory tree');
-    addOutput('  cd <dir>  - Change directory');
-    addOutput('  pwd       - Print working directory');
-    addOutput('  open <file> - Open file on GitHub');
-    addOutput('  clear     - Clear terminal');
-    addOutput('  github    - Open GitHub profile');
+    addOutput('  help          - Show this help message');
+    addOutput('  about         - About me');
+    addOutput('  education     - Education details');
+    addOutput('  experience    - Work experience');
+    addOutput('  skills        - Technical skills');
+    addOutput('  certifications - Certifications & courses');
+    addOutput('  focus         - Current focus areas');
+    addOutput('  languages     - Spoken languages');
+    addOutput('  projects      - View my GitHub projects');
+    addOutput('  contact       - Contact information');
+    addOutput('  ls            - List files/directories');
+    addOutput('  tree          - Show directory tree');
+    addOutput('  cd <dir>      - Change directory');
+    addOutput('  pwd           - Print working directory');
+    addOutput('  open <file>   - Open file on GitHub');
+    addOutput('  clear         - Clear terminal');
+    addOutput('  github        - Open GitHub profile');
+    addOutput('  linkedin      - Open LinkedIn profile');
     addOutput('');
   }
   else if (cmd === 'pwd') {
@@ -706,11 +773,106 @@ function executeCommand(cmd) {
   }
   else if (cmd === 'about') {
     addOutput('');
-    addOutput('Name: ' + portfolioData.name, palette.SELECT);
-    addOutput('Role: ' + portfolioData.role);
+    addOutput(portfolioData.name, palette.SELECT);
+    addOutput(portfolioData.role);
     addOutput('');
-    addOutput('I am a developer passionate about creating');
-    addOutput('interactive experiences and beautiful code.');
+    addOutput('Location: ' + portfolioData.location);
+    addOutput('Specialization: ' + portfolioData.specialization);
+    addOutput('');
+    addOutput('I am a Computer Science Engineering student passionate about');
+    addOutput('GPU programming, high-performance computing, and building');
+    addOutput('elegant solutions to complex problems.');
+    addOutput('');
+  }
+  else if (cmd === 'education') {
+    addOutput('');
+    addOutput('Education:', palette.SELECT);
+    addOutput('');
+    addOutput(portfolioData.education);
+    addOutput(portfolioData.degree + ' (' + portfolioData.period + ')');
+    addOutput('');
+    addOutput('Relevant Coursework:', palette.SELECT);
+    addOutput('• Algorithms & Data Structures');
+    addOutput('• Database Systems');
+    addOutput('• Hardware Security');
+    addOutput('• High-Performance Computing');
+    addOutput('');
+  }
+  else if (cmd === 'experience') {
+    addOutput('');
+    addOutput('Professional Experience:', palette.SELECT);
+    addOutput('');
+    addOutput(portfolioData.experience.title, palette.SELECT);
+    addOutput(portfolioData.experience.company + ' | ' + portfolioData.experience.location);
+    addOutput(portfolioData.experience.type + ' | ' + portfolioData.experience.period);
+    addOutput('');
+    portfolioData.experience.responsibilities.forEach(resp => {
+      addOutput('• ' + resp);
+    });
+    addOutput('');
+  }
+  else if (cmd === 'skills') {
+    addOutput('');
+    addOutput('Technical Skills:', palette.SELECT);
+    addOutput('');
+    addOutput('Programming Languages:', palette.SELECT);
+    addOutput('  ' + portfolioData.skills.programming);
+    addOutput('');
+    addOutput('Machine Learning & AI:', palette.SELECT);
+    addOutput('  ' + portfolioData.skills.ml_ai);
+    addOutput('');
+    addOutput('GPU & HPC:', palette.SELECT);
+    addOutput('  ' + portfolioData.skills.gpu_hpc);
+    addOutput('');
+    addOutput('Cloud & DevOps:', palette.SELECT);
+    addOutput('  ' + portfolioData.skills.cloud_devops);
+    addOutput('');
+    addOutput('Networking:', palette.SELECT);
+    addOutput('  ' + portfolioData.skills.networking);
+    addOutput('');
+    addOutput('Data Science:', palette.SELECT);
+    addOutput('  ' + portfolioData.skills.data_science);
+    addOutput('');
+    addOutput('Databases:', palette.SELECT);
+    addOutput('  ' + portfolioData.skills.databases);
+    addOutput('');
+    addOutput('Tools:', palette.SELECT);
+    addOutput('  ' + portfolioData.skills.tools);
+    addOutput('');
+  }
+  else if (cmd === 'certifications' || cmd === 'certs') {
+    addOutput('');
+    addOutput('Certifications & Online Courses:', palette.SELECT);
+    addOutput('');
+    portfolioData.certifications.forEach((cert, i) => {
+      let line = `${i + 1}. ${cert.name}`;
+      addOutput(line, palette.SELECT);
+      let details = `   ${cert.issuer} — ${cert.year}`;
+      if (cert.expires) details += ` (expires ${cert.expires})`;
+      addOutput(details);
+      if (cert.url) addOutput(`   ${cert.url}`, palette.FG);
+      if (i < portfolioData.certifications.length - 1) addOutput('');
+    });
+    addOutput('');
+  }
+  else if (cmd === 'focus') {
+    addOutput('');
+    addOutput('Current Focus Areas:', palette.SELECT);
+    addOutput('');
+    portfolioData.currentFocus.forEach(focus => {
+      addOutput('• ' + focus);
+    });
+    addOutput('');
+  }
+  else if (cmd === 'languages') {
+    addOutput('');
+    addOutput('Languages & Additional Info:', palette.SELECT);
+    addOutput('');
+    addOutput('Mother Tongue: ' + portfolioData.languages.motherTongue);
+    addOutput('Other Languages: ' + portfolioData.languages.other);
+    addOutput('');
+    addOutput('Nationality: ' + portfolioData.nationality);
+    addOutput('Driving Licenses: ' + portfolioData.drivingLicenses);
     addOutput('');
   }
   else if (cmd === 'projects') {
@@ -740,8 +902,11 @@ function executeCommand(cmd) {
     addOutput('');
     addOutput('Contact Information:', palette.SELECT);
     addOutput('');
-    addOutput('Email:  ' + portfolioData.email);
-    addOutput('GitHub: ' + portfolioData.github);
+    addOutput('Email:    ' + portfolioData.email);
+    addOutput('Phone:    ' + portfolioData.phone);
+    addOutput('GitHub:   ' + portfolioData.github);
+    addOutput('LinkedIn: ' + portfolioData.linkedin);
+    addOutput('Location: ' + portfolioData.location);
     addOutput('');
   }
   else if (cmd === 'skills') {
@@ -759,6 +924,12 @@ function executeCommand(cmd) {
   else if (cmd === 'github') {
     addOutput('Opening GitHub profile...', palette.SELECT);
     window.open(portfolioData.github, '_blank');
+    addOutput('');
+  }
+  else if (cmd === 'linkedin') {
+    addOutput('Opening LinkedIn profile...', palette.SELECT);
+    window.open(portfolioData.linkedin, '_blank');
+    addOutput('');
   }
   else {
     addOutput(`Command not found: ${originalCmd}`, '#ff4444');
