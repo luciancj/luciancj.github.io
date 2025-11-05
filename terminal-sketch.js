@@ -124,13 +124,6 @@ function draw() {
   // Draw bins and footer together (like the game's bottom section)
   drawBottom();
   
-  // Draw BME logo in top right corner
-  g.push();
-  g.imageMode(CORNER);
-  g.tint(palette.FG); // Apply cyan tint for both mobile and shader modes
-  g.image(lumon, g.width - lumon.width - 10, 10);
-  g.pop();
-  
   // Draw custom cursor
   drawCursor(mouseX, mouseY);
 
@@ -169,6 +162,15 @@ function drawTop() {
   g.stroke(palette.BG);
   g.text(portfolioData.name, wx + 20, 50);
   
+  // Draw BME logo inside the box on the right
+  g.push();
+  g.imageMode(CORNER);
+  g.tint(palette.FG);
+  // Position logo inside the box, aligned to the right with padding
+  let logoX = wx + w - lumon.width - 15;
+  let logoY = 25 + (50 - lumon.height) / 2; // Center vertically in the 50px box
+  g.image(lumon, logoX, logoY);
+  g.pop();
   
   g.fill(palette.BG);
   g.stroke(palette.FG);
