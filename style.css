@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
 
 :root {
-  --terminal-green: #00ff00;
-  --terminal-bg: #0a0a0a;
+  --terminal-cyan: #ABFFE9;
+  --terminal-bg: #010A13;
   --terminal-border: #333;
-  --glow-color: #00ff0044;
+  --glow-color: #ABFFE944;
 }
 
 * {
@@ -19,9 +18,9 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #000;
-  font-family: 'Share Tech Mono', 'VT323', monospace;
-  color: var(--terminal-green);
+  background: var(--terminal-bg);
+  font-family: 'Courier Prime', 'Courier', monospace;
+  color: var(--terminal-cyan);
 }
 
 /* WebGL Canvas */
@@ -57,9 +56,9 @@ body {
 }
 
 #loading h2 {
-  font-family: 'VT323', monospace;
+  font-family: 'Courier Prime', 'Courier', monospace;
   font-size: 2rem;
-  color: var(--terminal-green);
+  color: var(--terminal-cyan);
   margin-bottom: 20px;
   text-shadow: 0 0 10px var(--glow-color);
   animation: blink 1s infinite;
@@ -68,7 +67,7 @@ body {
 #loading-bar {
   width: 300px;
   height: 20px;
-  border: 2px solid var(--terminal-green);
+  border: 2px solid var(--terminal-cyan);
   background: transparent;
   position: relative;
   box-shadow: 0 0 10px var(--glow-color);
@@ -76,7 +75,7 @@ body {
 
 #loading-bar-progress {
   height: 100%;
-  background: var(--terminal-green);
+  background: var(--terminal-cyan);
   width: 0%;
   transition: width 0.3s ease;
   box-shadow: 0 0 10px var(--glow-color);
@@ -85,7 +84,7 @@ body {
 #loading-text {
   margin-top: 15px;
   font-size: 1rem;
-  color: var(--terminal-green);
+  color: var(--terminal-cyan);
 }
 
 /* Monitor Housing */
@@ -118,7 +117,7 @@ body {
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  font-family: 'VT323', monospace;
+  font-family: 'Courier Prime', 'Courier', monospace;
   font-size: 0.85rem;
   color: #444;
   letter-spacing: 2px;
@@ -131,11 +130,11 @@ body {
   right: 18px;
   width: 10px;
   height: 10px;
-  background: #00ff00;
+  background: var(--terminal-cyan);
   border-radius: 50%;
   box-shadow: 
-    0 0 10px #00ff00,
-    0 0 20px rgba(0, 255, 0, 0.5);
+    0 0 10px var(--terminal-cyan),
+    0 0 20px rgba(171, 255, 233, 0.5);
   animation: power-led 2s infinite;
 }
 
@@ -150,7 +149,7 @@ body {
   overflow: hidden;
   box-shadow: 
     inset 0 0 25px rgba(0, 0, 0, 0.8),
-    inset 0 0 50px rgba(0, 255, 0, 0.1);
+    inset 0 0 50px rgba(171, 255, 233, 0.1);
 }
 
 #monitor-stand {
@@ -201,15 +200,15 @@ body {
   filter: contrast(1.15) brightness(1.05);
   image-rendering: crisp-edges;
   
-  /* Glass CRT screen with depth */
+  /* Glass CRT screen with depth - Lumon cyan tint */
   box-shadow: 
-    inset 0 0 150px rgba(0, 255, 0, 0.08),
-    inset 0 0 120px rgba(0, 0, 0, 0.95),
+    inset 0 0 150px rgba(171, 255, 233, 0.08),
+    inset 0 0 120px rgba(1, 10, 19, 0.95),
     inset 0 25px 100px rgba(0, 0, 0, 0.85),
     inset 0 -25px 100px rgba(0, 0, 0, 0.85),
     inset 40px 0 100px rgba(0, 0, 0, 0.75),
     inset -40px 0 100px rgba(0, 0, 0, 0.75),
-    0 0 50px rgba(0, 255, 0, 0.25);
+    0 0 50px rgba(171, 255, 233, 0.25);
 }
 
 /* Welcome text with cylindrical wrap */
@@ -219,8 +218,8 @@ body {
   left: 20px;
   right: 20px;
   bottom: 20px;
-  color: #00ff00;
-  font-family: 'VT323', monospace;
+  color: var(--terminal-cyan);
+  font-family: 'Courier Prime', 'Courier', monospace;
   font-size: 1.2rem;
   line-height: 1.6;
   z-index: 100;
@@ -238,15 +237,15 @@ body {
   /* Barrel distortion to match CRT bulge - STRONGER */
   border-radius: 12%;
   
-  /* Crisp text rendering */
+  /* Crisp text rendering - Lumon style */
   filter: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
-  /* Minimal phosphor glow - very sharp */
+  /* Minimal cyan glow - very sharp */
   text-shadow: 
-    0 0 2px rgba(0, 255, 0, 0.4),
-    0 0 4px rgba(0, 255, 0, 0.2);
+    0 0 2px rgba(171, 255, 233, 0.4),
+    0 0 4px rgba(171, 255, 233, 0.2);
 }
 
 /* Simulate curvature by transforming lines based on position */
@@ -383,8 +382,8 @@ body {
     transparent 2px
   );
   
-  /* Minimal phosphor glow */
-  box-shadow: inset 0 0 40px rgba(0, 255, 0, 0.03);
+  /* Subtle cyan phosphor glow */
+  box-shadow: inset 0 0 40px rgba(171, 255, 233, 0.03);
   animation: flicker 0.15s infinite, crtWobble 8s ease-in-out infinite;
 }
 
@@ -415,15 +414,15 @@ body {
       0deg,
       transparent,
       transparent 2px,
-      rgba(0, 255, 0, 0.03) 2px,
-      rgba(0, 255, 0, 0.03) 4px
+      rgba(171, 255, 233, 0.03) 2px,
+      rgba(171, 255, 233, 0.03) 4px
     ),
     repeating-linear-gradient(
       90deg,
       transparent,
       transparent 2px,
-      rgba(0, 255, 0, 0.03) 2px,
-      rgba(0, 255, 0, 0.03) 4px
+      rgba(171, 255, 233, 0.03) 2px,
+      rgba(171, 255, 233, 0.03) 4px
     );
   animation: noiseAnim 0.2s infinite;
 }
@@ -489,38 +488,38 @@ body {
 
 #terminal-content::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.5);
-  border-left: 1px solid rgba(0, 255, 0, 0.3);
+  border-left: 1px solid rgba(171, 255, 233, 0.3);
   margin: 50px 0;
 }
 
 #terminal-content::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, 
-    rgba(0, 255, 0, 0.6),
-    rgba(0, 255, 0, 0.8),
-    rgba(0, 255, 0, 0.6)
+    rgba(171, 255, 233, 0.6),
+    rgba(171, 255, 233, 0.8),
+    rgba(171, 255, 233, 0.6)
   );
   border-radius: 2px;
-  border: 1px solid rgba(0, 255, 0, 0.5);
+  border: 1px solid rgba(171, 255, 233, 0.5);
   box-shadow: 
-    inset 0 0 6px rgba(0, 255, 0, 0.4),
-    0 0 6px rgba(0, 255, 0, 0.3);
+    inset 0 0 6px rgba(171, 255, 233, 0.4),
+    0 0 6px rgba(171, 255, 233, 0.3);
 }
 
 #terminal-content::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, 
-    rgba(0, 255, 0, 0.8),
-    rgba(0, 255, 0, 1),
-    rgba(0, 255, 0, 0.8)
+    rgba(171, 255, 233, 0.8),
+    rgba(171, 255, 233, 1),
+    rgba(171, 255, 233, 0.8)
   );
   box-shadow: 
-    inset 0 0 8px rgba(0, 255, 0, 0.6),
-    0 0 10px rgba(0, 255, 0, 0.5);
+    inset 0 0 8px rgba(171, 255, 233, 0.6),
+    0 0 10px rgba(171, 255, 233, 0.5);
 }
 
 /* Firefox scrollbar */
 #terminal-content {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 255, 0, 0.7) rgba(0, 0, 0, 0.5);
+  scrollbar-color: rgba(171, 255, 233, 0.7) rgba(0, 0, 0, 0.5);
 }
 
 #terminal-output {
@@ -549,18 +548,18 @@ body {
 }
 
 .success {
-  color: #00ff00;
+  color: var(--terminal-cyan);
 }
 
 .info {
-  color: #00ffff;
+  color: #4ABCC5;
 }
 
 .header {
-  color: #ff00ff;
+  color: #B962B0;
   font-weight: bold;
   font-size: 1.2em;
-  text-shadow: 0 0 5px var(--glow-color);
+  text-shadow: 0 0 5px rgba(171, 255, 233, 0.3);
 }
 
 /* Terminal Input Line */
@@ -571,7 +570,7 @@ body {
 }
 
 .prompt {
-  color: var(--terminal-green);
+  color: var(--terminal-cyan);
   font-weight: bold;
   text-shadow: 0 0 5px var(--glow-color);
 }
@@ -581,7 +580,7 @@ body {
   background: transparent;
   border: none;
   outline: none;
-  color: var(--terminal-green);
+  color: var(--terminal-cyan);
   font-family: inherit;
   font-size: inherit;
   caret-color: transparent;
@@ -589,7 +588,7 @@ body {
 
 .cursor {
   animation: blink 1s step-start infinite;
-  color: var(--terminal-green);
+  color: var(--terminal-cyan);
 }
 
 @keyframes blink {
@@ -612,21 +611,21 @@ body {
 
 .nav-btn {
   background: var(--terminal-bg);
-  color: var(--terminal-green);
-  border: 2px solid var(--terminal-green);
+  color: var(--terminal-cyan);
+  border: 2px solid var(--terminal-cyan);
   padding: 8px 16px;
-  font-family: 'VT323', monospace;
+  font-family: 'Courier Prime', 'Courier', monospace;
   font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
   text-shadow: 0 0 5px var(--glow-color);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+  box-shadow: 0 0 10px rgba(171, 255, 233, 0.2);
 }
 
 .nav-btn:hover {
-  background: var(--terminal-green);
+  background: var(--terminal-cyan);
   color: var(--terminal-bg);
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+  box-shadow: 0 0 20px rgba(171, 255, 233, 0.6);
   transform: scale(1.05);
 }
 
