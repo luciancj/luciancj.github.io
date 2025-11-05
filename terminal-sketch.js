@@ -185,28 +185,23 @@ function draw() {
   
   // CRT power-on effect
   if (!powerOnComplete) {
-    // Draw terminal content behind the power-on effect
+    // Draw terminal content with fade-in effect (no blur for performance)
+    let progress = powerOnProgress / powerOnDuration;
+    
+    // Set global alpha based on warmup progress for fade-in effect
+    if (progress < 0.9) {
+      let fadeIn = progress / 0.9; // 0 to 1 over first 90%
+      g.push();
+      g.drawingContext.globalAlpha = fadeIn * 0.7 + 0.3; // 30% to 100% opacity
+    }
+    
     drawTop();
     drawTerminal();
     drawBottom();
     drawOscilloscopeEffects();
     
-    // Apply blur/defocus effect during warmup using p5.js filter
-    let progress = powerOnProgress / powerOnDuration;
     if (progress < 0.9) {
-      // Create blur effect that reduces as TV warms up
-      let blurStrength = floor(8 * (1 - progress / 0.9)); // 0-8 blur levels
-      if (blurStrength > 0) {
-        g.filter(BLUR, blurStrength);
-      }
-      
-      // Also reduce brightness/contrast to simulate unfocused electron guns
-      let brightness = 0.5 + (progress / 0.9) * 0.5; // 50% to 100% brightness
-      g.push();
-      g.noStroke();
-      g.fill(0, 0, 0, (1 - brightness) * 150); // Dark overlay
-      g.rect(0, 0, g.width, g.height);
-      g.pop();
+      g.pop(); // Restore alpha
     }
     
     // Draw power-on overlay effect
