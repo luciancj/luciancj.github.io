@@ -105,7 +105,33 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  // Calculate canvas size based on screen size
+  let canvasWidth, canvasHeight;
+  
+  // For large screens (desktop), maintain aspect ratio similar to screenshot
+  // For mobile/small screens, use full window
+  if (windowWidth > 1024) {
+    // Desktop: use 16:9 aspect ratio, max 90% of window size
+    let maxWidth = windowWidth * 0.9;
+    let maxHeight = windowHeight * 0.9;
+    
+    // Calculate dimensions maintaining 16:9 ratio
+    if (maxWidth / maxHeight > 16/9) {
+      // Window is wider than 16:9, constrain by height
+      canvasHeight = maxHeight;
+      canvasWidth = canvasHeight * (16/9);
+    } else {
+      // Window is taller than 16:9, constrain by width
+      canvasWidth = maxWidth;
+      canvasHeight = canvasWidth / (16/9);
+    }
+  } else {
+    // Mobile: use full window
+    canvasWidth = windowWidth;
+    canvasHeight = windowHeight;
+  }
+  
+  createCanvas(canvasWidth, canvasHeight);
   pixelDensity(1);
   
   // Initialize graphics buffer for main drawing
@@ -784,9 +810,33 @@ function mouseWheel(event) {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  g.resizeCanvas(windowWidth, windowHeight);
-  shaderLayer.resizeCanvas(windowWidth, windowHeight);
+  // Calculate new canvas size based on screen size
+  let canvasWidth, canvasHeight;
+  
+  // For large screens (desktop), maintain aspect ratio
+  // For mobile/small screens, use full window
+  if (windowWidth > 1024) {
+    // Desktop: use 16:9 aspect ratio, max 90% of window size
+    let maxWidth = windowWidth * 0.9;
+    let maxHeight = windowHeight * 0.9;
+    
+    // Calculate dimensions maintaining 16:9 ratio
+    if (maxWidth / maxHeight > 16/9) {
+      canvasHeight = maxHeight;
+      canvasWidth = canvasHeight * (16/9);
+    } else {
+      canvasWidth = maxWidth;
+      canvasHeight = canvasWidth / (16/9);
+    }
+  } else {
+    // Mobile: use full window
+    canvasWidth = windowWidth;
+    canvasHeight = windowHeight;
+  }
+  
+  resizeCanvas(canvasWidth, canvasHeight);
+  g.resizeCanvas(width, height);
+  shaderLayer.resizeCanvas(width, height);
   crtShader.setUniform('u_resolution', [g.width, g.height]);
   smaller = min(g.width, g.height);
   

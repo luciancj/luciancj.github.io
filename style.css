@@ -11,10 +11,13 @@
 html,
 body {
   height: 100%;
-  background-color: #0A0F0A;
-  color: #33FF33;
-  font-family: 'Courier', monospace;
-  
+  background-color: #010A13;
+  color: #ABFFE9;
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 canvas {
   display: block;
@@ -31,17 +34,4 @@ div {
   height: 100%;
   display: grid;
   place-content: center;
-  background-color: #0A0F0A;
-  color: #33FF33;
-  font-family: 'Courier', monospace;
-  font-size: 20px;
-}
-
-#p5_loading {
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.3; }
 }
