@@ -423,9 +423,9 @@ function drawCursor(xPos, yPos) {
     distortedY = (distortY * 0.5 + 0.5) * g.height;
     
     // Calculate scale distortion based on position
-    // Cursor gets stretched near edges
-    scaleX = 1.0 + abs(normX) * 0.3;
-    scaleY = 1.0 + abs(normY) * 0.3;
+    // Cursor gets stretched near edges - increased multiplier for more visible distortion
+    scaleX = 1.0 + abs(normX) * 0.8;
+    scaleY = 1.0 + abs(normY) * 0.8;
   }
   
   g.push();
