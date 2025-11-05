@@ -431,7 +431,7 @@ function drawCursor(xPos, yPos) {
   g.push();
   // this offset makes the box draw from point of cursor 
   g.translate(distortedX + 10, distortedY + 10);
-  g.scale(1.2 * scaleX, 1.2 * scaleY);
+  g.scale(0.8 * scaleX, 0.8 * scaleY); // Reduced from 1.2 to 0.8 for smaller cursor
   g.fill(palette.BG);
   g.stroke(palette.FG);
   g.strokeWeight(3);
