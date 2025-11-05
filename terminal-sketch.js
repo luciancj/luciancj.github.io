@@ -108,23 +108,21 @@ function setup() {
   // Calculate canvas size based on screen size
   let canvasWidth, canvasHeight;
   
-  // For large screens (desktop), maintain aspect ratio similar to screenshot
+  // For large screens (desktop), maintain 16:9 aspect ratio at 75% size
   // For mobile/small screens, use full window
   if (windowWidth > 1024) {
-    // Desktop: use 16:9 aspect ratio, but smaller resolution for retro look
-    let maxWidth = windowWidth * 0.75; // Reduced from 0.9 to make it smaller
-    let maxHeight = windowHeight * 0.75;
+    // Desktop: simple 16:9 ratio calculation
+    let targetWidth = windowWidth * 0.75;
+    let targetHeight = targetWidth / (16/9);
     
-    // Calculate dimensions maintaining 16:9 ratio
-    if (maxWidth / maxHeight > 16/9) {
-      // Window is wider than 16:9, constrain by height
-      canvasHeight = maxHeight;
-      canvasWidth = canvasHeight * (16/9);
-    } else {
-      // Window is taller than 16:9, constrain by width
-      canvasWidth = maxWidth;
-      canvasHeight = canvasWidth / (16/9);
+    // If calculated height is too tall for window, use full height calculation instead
+    if (targetHeight > windowHeight * 0.75) {
+      targetHeight = windowHeight * 0.75;
+      targetWidth = targetHeight * (16/9);
     }
+    
+    canvasWidth = targetWidth;
+    canvasHeight = targetHeight;
   } else {
     // Mobile: use full window
     canvasWidth = windowWidth;
@@ -813,21 +811,21 @@ function windowResized() {
   // Calculate new canvas size based on screen size
   let canvasWidth, canvasHeight;
   
-  // For large screens (desktop), maintain aspect ratio
+  // For large screens (desktop), maintain 16:9 aspect ratio at 75% size
   // For mobile/small screens, use full window
   if (windowWidth > 1024) {
-    // Desktop: use 16:9 aspect ratio, smaller size
-    let maxWidth = windowWidth * 0.75; // Reduced from 0.9
-    let maxHeight = windowHeight * 0.75;
+    // Desktop: simple 16:9 ratio calculation
+    let targetWidth = windowWidth * 0.75;
+    let targetHeight = targetWidth / (16/9);
     
-    // Calculate dimensions maintaining 16:9 ratio
-    if (maxWidth / maxHeight > 16/9) {
-      canvasHeight = maxHeight;
-      canvasWidth = canvasHeight * (16/9);
-    } else {
-      canvasWidth = maxWidth;
-      canvasHeight = canvasWidth / (16/9);
+    // If calculated height is too tall for window, use full height calculation instead
+    if (targetHeight > windowHeight * 0.75) {
+      targetHeight = windowHeight * 0.75;
+      targetWidth = targetHeight * (16/9);
     }
+    
+    canvasWidth = targetWidth;
+    canvasHeight = targetHeight;
   } else {
     // Mobile: use full window
     canvasWidth = windowWidth;
@@ -852,28 +850,20 @@ function drawCursor(xPos, yPos) {
   // prevents the cursor appearing in top left corner on page load
   if (xPos == 0 && yPos == 0) return;
   
-  // Wrap cursor position around screen edges
-  let wrappedX = xPos;
-  let wrappedY = yPos;
-  
-  // Horizontal wrapping
-  if (wrappedX < 0) wrappedX = g.width + wrappedX;
-  if (wrappedX > g.width) wrappedX = wrappedX - g.width;
-  
-  // Vertical wrapping
-  if (wrappedY < 0) wrappedY = g.height + wrappedY;
-  if (wrappedY > g.height) wrappedY = wrappedY - g.height;
+  // Clamp cursor position to screen edges instead of wrapping
+  let clampedX = constrain(xPos, 0, g.width);
+  let clampedY = constrain(yPos, 0, g.height);
   
   // Apply CRT curvature distortion if shader is enabled
-  let distortedX = wrappedX;
-  let distortedY = wrappedY;
+  let distortedX = clampedX;
+  let distortedY = clampedY;
   let scaleX = 1.0;
   let scaleY = 1.0;
   
   if (useShader) {
     // Normalize coordinates to 0-1
-    let uvX = wrappedX / g.width;
-    let uvY = wrappedY / g.height;
+    let uvX = clampedX / g.width;
+    let uvY = clampedY / g.height;
     
     // Convert to -1 to 1 range (same as shader)
     let normX = uvX * 2.0 - 1.0;
