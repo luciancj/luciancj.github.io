@@ -1,9 +1,12 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
-import { CRTShaderEffect } from './crtShader.js';
+import { EffectComposer } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderToScreen } from './shaderToScreen.js';
+import { Lag } from './lag.js';
 
 console.log('Script.js loaded successfully');
 console.log('THREE imported:', typeof THREE);
-console.log('CRTShaderEffect imported:', typeof CRTShaderEffect);
 
 // Terminal State
 let commandHistory = [];
@@ -532,10 +535,57 @@ function showTree() {
 // ===== THREE.JS / WEBGL BACKGROUND =====
 async function initWebGL() {
   try {
+    // Load shaders
+    const vertexShader = await fetch('./shaders/vertex.vert').then(r => r.text());
+    const noiseFragmentShader = await fetch('./shaders/noise.frag').then(r => r.text());
+    
     const canvas = document.querySelector('.webgl');
+    
+    // ===== SCENE FOR RENDER TARGET (Text/Content) =====
+    const sceneRTT = new THREE.Scene();
+    sceneRTT.background = new THREE.Color(0x0a0a0a); // Black background
+    
+    // Camera for render target
+    const resolution = 512 + 64;
+    const cameraRTT = new THREE.OrthographicCamera(-0.1, 1.496, 0.1, -1.1, 1, 3);
+    sceneRTT.add(cameraRTT);
+    cameraRTT.position.set(0, 0, 1);
+    
+    // Add some green geometry to the RTT scene
+    const textGeometry = new THREE.PlaneGeometry(1.2, 0.8);
+    const textMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0x00ff00,
+      wireframe: true
+    });
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+    textMesh.position.set(0.6, -0.4, 0);
+    sceneRTT.add(textMesh);
+    
+    // Add particles to RTT scene
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 500;
+    const posArray = new Float32Array(particlesCount * 3);
+    
+    for(let i = 0; i < particlesCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 2;
+    }
+    
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.005,
+      color: 0x00ff00,
+      transparent: true,
+      opacity: 0.8
+    });
+    
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    particlesMesh.position.set(0.7, -0.5, 0);
+    sceneRTT.add(particlesMesh);
+    
+    // ===== MAIN SCENE =====
     const scene = new THREE.Scene();
     
-    // Camera
+    // Camera for main scene
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
@@ -553,48 +603,107 @@ async function initWebGL() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    // Create geometric shapes
-    const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-    const material = new THREE.MeshNormalMaterial({
-      wireframe: true
+    // ===== EFFECT COMPOSER SETUP =====
+    const rtTexture = new THREE.WebGLRenderTarget(resolution * 1.33, resolution, {
+      format: THREE.RGBFormat,
     });
-    const torusKnot = new THREE.Mesh(geometry, material);
+    
+    const composer = new EffectComposer(renderer, rtTexture);
+    composer.renderToScreen = false;
+    
+    const renderPass = new RenderPass(sceneRTT, cameraRTT);
+    composer.addPass(renderPass);
+    
+    // Bloom pass for glow effect
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(128, 128),
+      1.1,
+      0.4,
+      0
+    );
+    composer.addPass(bloomPass);
+    
+    // Lag (phosphor persistence) effect
+    const lag = new Lag(composer.readBuffer, resolution * 1.33, resolution);
+    
+    // Noise shader
+    const noiseShader = new ShaderToScreen(
+      {
+        uniforms: {
+          uDiffuse: { value: lag.outputTexture.texture },
+          uTime: { value: 1 },
+          uProgress: { value: 1.2 },
+        },
+        vertexShader: vertexShader,
+        fragmentShader: noiseFragmentShader,
+      },
+      resolution * 1.33,
+      resolution
+    );
+    
+    // ===== MAIN SCENE CONTENT (for background) =====
+    const torusGeometry = new THREE.TorusKnotGeometry(0.8, 0.25, 100, 16);
+    const torusMaterial = new THREE.MeshNormalMaterial({
+      wireframe: true,
+      transparent: true,
+      opacity: 0.3
+    });
+    const torusKnot = new THREE.Mesh(torusGeometry, torusMaterial);
     scene.add(torusKnot);
     
-    // Particles
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 1000;
-    const posArray = new Float32Array(particlesCount * 3);
+    // Background particles
+    const bgParticlesGeometry = new THREE.BufferGeometry();
+    const bgParticlesCount = 800;
+    const bgPosArray = new Float32Array(bgParticlesCount * 3);
     
-    for(let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 10;
+    for(let i = 0; i < bgParticlesCount * 3; i++) {
+      bgPosArray[i] = (Math.random() - 0.5) * 10;
     }
     
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const particlesMaterial = new THREE.PointsMaterial({
+    bgParticlesGeometry.setAttribute('position', new THREE.BufferAttribute(bgPosArray, 3));
+    const bgParticlesMaterial = new THREE.PointsMaterial({
       size: 0.02,
       color: 0x00ff00,
       transparent: true,
-      opacity: 0.6
+      opacity: 0.4
     });
     
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particlesMesh);
+    const bgParticlesMesh = new THREE.Points(bgParticlesGeometry, bgParticlesMaterial);
+    scene.add(bgParticlesMesh);
     
-    // Animation
+    // ===== ANIMATION =====
     const clock = new THREE.Clock();
+    let uProgress = 1.2;
     
     function animate() {
       const elapsedTime = clock.getElapsedTime();
+      const deltaTime = clock.getDelta();
       
-      // Rotate shapes
-      torusKnot.rotation.x = elapsedTime * 0.3;
-      torusKnot.rotation.y = elapsedTime * 0.2;
+      // Rotate RTT scene objects
+      textMesh.rotation.z = Math.sin(elapsedTime * 0.5) * 0.1;
+      particlesMesh.rotation.y = elapsedTime * 0.3;
       
-      // Rotate particles
-      particlesMesh.rotation.y = elapsedTime * 0.05;
+      // Rotate main scene objects
+      torusKnot.rotation.x = elapsedTime * 0.2;
+      torusKnot.rotation.y = elapsedTime * 0.15;
+      bgParticlesMesh.rotation.y = elapsedTime * 0.05;
       
+      // Update shader uniforms
+      noiseShader.shader.uniforms.uTime.value = elapsedTime;
+      noiseShader.shader.uniforms.uProgress.value = uProgress;
+      
+      uProgress -= deltaTime * 0.2;
+      if (uProgress < 0) uProgress = 1.2;
+      
+      // Render pipeline
+      lag.render(renderer);
+      composer.render();
+      noiseShader.render(renderer);
+      
+      // Render main scene to screen
+      renderer.setRenderTarget(null);
       renderer.render(scene, camera);
+      
       requestAnimationFrame(animate);
     }
     
@@ -606,23 +715,10 @@ async function initWebGL() {
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+    
+    console.log('WebGL initialized with shader pipeline');
   } catch (error) {
     console.error('WebGL initialization failed:', error);
-  }
-}
-
-// ===== CRT SHADER EFFECTS =====
-function initCRTShader() {
-  try {
-    crtEffect = new CRTShaderEffect();
-    const success = crtEffect.init();
-    if (success) {
-      console.log('CRT shader effects active');
-    } else {
-      console.warn('CRT shader effects could not be initialized');
-    }
-  } catch (error) {
-    console.error('CRT shader initialization error:', error);
   }
 }
 

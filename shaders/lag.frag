@@ -1,14 +1,14 @@
-// Phosphor Lag Effect - Creates CRT phosphor persistence/ghosting
-uniform sampler2D tDiffuse;
-uniform sampler2D tLag;
-uniform float lagAmount;
+#define LAG 0.8
+#define LAG_INVERSE 0.2
+
+uniform sampler2D uDiffuse;
+uniform sampler2D uLagTex;
 varying vec2 vUv;
 
-void main() {
-    vec4 texel = texture2D(tDiffuse, vUv);
-    vec4 lagTexel = texture2D(tLag, vUv);
-    
-    // Mix current frame with previous frame for phosphor persistence
-    // lagAmount controls how much of the previous frame bleeds through
-    gl_FragColor = (texel * (1.0 - lagAmount)) + (lagTexel * lagAmount);
+void main()
+{
+    vec4 Diffuse = texture2D(uDiffuse, vUv);
+    vec4 LagTex = texture2D(uLagTex, vUv);
+
+    gl_FragColor = (Diffuse * LAG_INVERSE) + (LagTex * LAG);            
 }
