@@ -118,13 +118,8 @@ function draw() {
   // Draw terminal content
   drawTerminal();
   
-  // Draw footer (like the game's bottom bar)
+  // Draw bins and footer together (like the game's bottom section)
   drawBottom();
-  
-  // Draw bins
-  for (let bin of bins) {
-    bin.show();
-  }
   
   // Draw custom cursor
   drawCursor(mouseX, mouseY);
@@ -175,6 +170,12 @@ function drawTop() {
 }
 
 function drawBottom() {
+  // Draw bins first (like original game)
+  for (let bin of bins) {
+    bin.show();
+  }
+  
+  // Draw footer bar at the very bottom with coordinates text (like original game)
   g.rectMode(CORNER);
   g.fill(palette.FG);
   g.rect(0, g.height - 20, g.width, 20);
@@ -182,6 +183,7 @@ function drawBottom() {
   g.textFont('Courier');
   g.textAlign(CENTER, CENTER);
   g.textSize(14);
+  // Display help text in the footer like original game shows coordinates
   g.text('Type "help" for commands', g.width * 0.5, g.height - 10);
 }
 
