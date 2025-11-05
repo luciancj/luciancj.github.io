@@ -142,10 +142,42 @@ function draw() {
   
   // CRT power-on effect
   if (!powerOnComplete) {
+    // Draw terminal content behind the power-on effect
+    drawTop();
+    drawTerminal();
+    drawBottom();
+    drawOscilloscopeEffects();
+    
+    // Apply blur to content during warmup
+    let progress = powerOnProgress / powerOnDuration;
+    if (progress < 0.9) {
+      // Heavy blur that reduces as TV warms up
+      let blurAmount = 15 * (1 - progress / 0.9);
+      g.drawingContext.filter = `blur(${blurAmount}px)`;
+      // Re-draw with blur
+      let tempCanvas = g.get();
+      g.background(palette.BG);
+      g.image(tempCanvas, 0, 0);
+      g.drawingContext.filter = 'none';
+    }
+    
+    // Draw power-on overlay effect
     drawPowerOnEffect();
     powerOnProgress++;
     if (powerOnProgress >= powerOnDuration) {
       powerOnComplete = true;
+    }
+    
+    // Apply CRT shader
+    if (useShader) {
+      shaderLayer.rect(0, 0, g.width, g.height);
+      shaderLayer.shader(crtShader);
+      crtShader.setUniform('u_tex', g);
+      background(palette.BG);
+      imageMode(CORNER);
+      image(shaderLayer, 0, 0, g.width, g.height);
+    } else {
+      image(g, 0, 0, g.width, g.height);
     }
     return;
   }
@@ -179,14 +211,12 @@ function draw() {
 }
 
 function drawPowerOnEffect() {
-  // Realistic valve TV power-on effect
+  // Realistic valve TV power-on effect - now as an overlay
   // Phase 1: Horizontal line expands (Line Output warming up)
   // Phase 2: Vertical expansion begins (Frame Oscillator warming up)
   // Phase 3: Overshoots then settles (EHT stabilizing)
   
   let progress = powerOnProgress / powerOnDuration;
-  
-  g.background(0); // Pure black
   
   let centerX = g.width / 2;
   let centerY = g.height / 2;
@@ -208,7 +238,7 @@ function drawPowerOnEffect() {
     sin((verticalPhase - 0.8) / 0.2 * PI) * 0.2 : 0;
   let heightScale = verticalEase * (1 + verticalOvershoot);
   
-  // Settling phase - pull back from overshoot, increase brightness/sharpness
+  // Settling phase - pull back from overshoot
   if (settlePhase > 0) {
     widthScale = lerp(widthScale, 0.98, settlePhase * 0.3); // Settle slightly smaller
     heightScale = lerp(heightScale, 0.98, settlePhase * 0.3);
@@ -218,59 +248,45 @@ function drawPowerOnEffect() {
   let currentWidth = g.width * widthScale;
   let currentHeight = max(g.height * heightScale, 1); // Start as thin line
   
-  // Blur/Glow based on warmup state (heavy blur early, sharp later)
-  let blurAmount = 0;
-  let glowIntensity = 0;
-  
-  if (progress < 0.3) {
-    // Heavy blur early - electron guns not focused
-    blurAmount = 20 * (1 - progress / 0.3);
-    glowIntensity = 0.6;
-  } else if (progress < 0.7) {
-    // Reducing blur as EHT comes up
-    blurAmount = 8 * (1 - (progress - 0.3) / 0.4);
-    glowIntensity = 0.4 * (1 - (progress - 0.3) / 0.4);
-  } else {
-    // Sharp and bright once settled
-    blurAmount = 2;
-    glowIntensity = 0.1;
-  }
-  
-  // Brightness increases as EHT builds up
-  let brightness = progress < 0.5 ? 
-    0.3 + (progress / 0.5) * 0.7 : 
-    1.0;
-  
   g.push();
   g.rectMode(CENTER);
   
-  // Draw main beam area
-  g.noStroke();
-  
-  // Apply glow/halation effect
-  if (glowIntensity > 0.05) {
-    for (let i = 0; i < 5; i++) {
-      let glowSize = blurAmount * (i + 1) * 0.5;
-      g.fill(palette.FG);
-      g.drawingContext.globalAlpha = glowIntensity * brightness * (1 - i * 0.2);
-      g.rect(centerX, centerY, currentWidth + glowSize * 2, currentHeight + glowSize * 2);
+  // Darken areas outside the expanding screen area (vignette effect)
+  let darkenAmount = progress < 0.9 ? 0.95 : 1 - ((progress - 0.9) / 0.1); // Fade out the mask
+  if (darkenAmount > 0.05) {
+    g.fill(0);
+    g.noStroke();
+    g.drawingContext.globalAlpha = darkenAmount * 0.9;
+    
+    // Top
+    if (currentHeight < g.height) {
+      g.rect(centerX, centerY - currentHeight/2 - (g.height - currentHeight)/4, 
+             g.width, (g.height - currentHeight)/2);
+      // Bottom
+      g.rect(centerX, centerY + currentHeight/2 + (g.height - currentHeight)/4, 
+             g.width, (g.height - currentHeight)/2);
+    }
+    
+    // Left
+    if (currentWidth < g.width) {
+      g.rect(centerX - currentWidth/2 - (g.width - currentWidth)/4, centerY, 
+             (g.width - currentWidth)/2, currentHeight);
+      // Right
+      g.rect(centerX + currentWidth/2 + (g.width - currentWidth)/4, centerY, 
+             (g.width - currentWidth)/2, currentHeight);
     }
   }
   
-  // Main screen content
-  g.fill(palette.BG);
-  g.drawingContext.globalAlpha = brightness * 0.9;
-  g.rect(centerX, centerY, currentWidth, currentHeight);
-  
-  // Horizontal scanlines effect (fake scan lines)
-  if (currentHeight > 4 && progress > 0.2) {
-    g.drawingContext.globalAlpha = 0.3 * brightness;
-    g.stroke(palette.FG);
-    g.strokeWeight(1);
-    let scanlineSpacing = 4;
-    for (let y = centerY - currentHeight/2; y < centerY + currentHeight/2; y += scanlineSpacing) {
-      let lineWidth = currentWidth * (1 - abs(y - centerY) / (currentHeight/2) * 0.1);
-      g.line(centerX - lineWidth/2, y, centerX + lineWidth/2, y);
+  // Glow effect around the expanding edges
+  if (progress < 0.9) {
+    let glowIntensity = 0.4 * (1 - progress / 0.9);
+    for (let i = 0; i < 3; i++) {
+      let glowSize = (i + 1) * 4;
+      g.noFill();
+      g.stroke(palette.FG);
+      g.strokeWeight(2);
+      g.drawingContext.globalAlpha = glowIntensity * (1 - i * 0.3);
+      g.rect(centerX, centerY, currentWidth + glowSize * 2, currentHeight + glowSize * 2);
     }
   }
   
@@ -289,13 +305,14 @@ function drawPowerOnEffect() {
     g.textFont('Courier');
     g.textSize(16);
     g.textAlign(CENTER, CENTER);
-    g.drawingContext.globalAlpha = sin(progress / 0.4 * PI) * brightness;
+    let brightness = progress < 0.5 ? 0.3 + (progress / 0.5) * 0.7 : 1.0;
+    g.drawingContext.globalAlpha = sin(progress / 0.4 * PI) * brightness * 0.8;
     g.text('WARMING UP...', centerX, centerY);
   }
   
   // Static noise while warming up (signal interference)
   if (progress < 0.8 && currentHeight > 10) {
-    g.drawingContext.globalAlpha = 0.2 * (1 - progress / 0.8) * brightness;
+    g.drawingContext.globalAlpha = 0.2 * (1 - progress / 0.8);
     for (let i = 0; i < 100; i++) {
       let x = centerX + random(-currentWidth/2, currentWidth/2);
       let y = centerY + random(-currentHeight/2, currentHeight/2);
@@ -306,18 +323,6 @@ function drawPowerOnEffect() {
   }
   
   g.pop();
-  
-  // Apply to screen
-  if (useShader) {
-    shaderLayer.rect(0, 0, g.width, g.height);
-    shaderLayer.shader(crtShader);
-    crtShader.setUniform('u_tex', g);
-    background(0);
-    imageMode(CORNER);
-    image(shaderLayer, 0, 0, g.width, g.height);
-  } else {
-    image(g, 0, 0, g.width, g.height);
-  }
 }
 
 function drawTop() {
