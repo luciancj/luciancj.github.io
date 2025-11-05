@@ -48,17 +48,39 @@ let lastBlinkTime = 0;
 let lumon;
 let scrollOffset = 0; // For terminal scrolling
 
+// File system navigation state
+let currentPath = '~';
+let currentRepo = null;
+let fileSystem = {
+  '~': {
+    type: 'directory',
+    contents: ['projects']
+  },
+  '~/projects': {
+    type: 'directory',
+    contents: [] // Will be populated with GitHub repos
+  }
+};
+
 // Portfolio data
 const portfolioData = {
   name: 'Guest User',
   role: 'Developer',
   email: 'your.email@example.com',
   github: 'https://github.com/luciancj',
+  githubUsername: 'luciancj',
   projects: [
     {
       name: 'Macrodata Refinement',
       desc: 'Severance-inspired interactive game',
-      link: 'https://github.com/Lumon-Industries/Macrodata-Refinement'
+      link: 'https://github.com/Lumon-Industries/Macrodata-Refinement',
+      repo: 'Lumon-Industries/Macrodata-Refinement'
+    },
+    {
+      name: 'luciancj.github.io',
+      desc: 'Terminal Portfolio Website',
+      link: 'https://github.com/luciancj/luciancj.github.io',
+      repo: 'luciancj/luciancj.github.io'
     }
   ]
 };
@@ -232,11 +254,14 @@ function drawTerminal() {
     y = maxY - lineHeight * 2;
   }
   
+  // Draw prompt with current path
   g.fill(palette.SELECT);
-  g.text('> ', x, y);
+  let prompt = currentPath + ' > ';
+  g.text(prompt, x, y);
   
   g.fill(palette.FG);
-  g.text(currentInput, x + 20, y);
+  let promptWidth = g.textWidth(prompt);
+  g.text(currentInput, x + promptWidth, y);
 
   // Blinking cursor
   if (millis() - lastBlinkTime > 500) {
@@ -245,7 +270,7 @@ function drawTerminal() {
   }
   if (cursorBlink) {
     g.fill(palette.SELECT);
-    g.rect(x + 20 + g.textWidth(currentInput), y + 2, 10, 18);
+    g.rect(x + promptWidth + g.textWidth(currentInput), y + 2, 10, 18);
   }
 }
 
@@ -265,9 +290,10 @@ function addOutput(text, color = null) {
 }
 
 function executeCommand(cmd) {
-  cmd = cmd.trim().toLowerCase();
+  let originalCmd = cmd.trim();
+  cmd = originalCmd.toLowerCase();
   
-  addOutput('> ' + cmd, palette.SELECT);
+  addOutput('> ' + originalCmd, palette.SELECT);
   
   if (cmd === '') {
     return;
@@ -281,9 +307,29 @@ function executeCommand(cmd) {
     addOutput('  projects  - View my projects');
     addOutput('  contact   - Contact information');
     addOutput('  skills    - My technical skills');
+    addOutput('  ls        - List files/directories');
+    addOutput('  cd <dir>  - Change directory');
+    addOutput('  pwd       - Print working directory');
+    addOutput('  open <file> - Open file on GitHub');
     addOutput('  clear     - Clear terminal');
     addOutput('  github    - Open GitHub profile');
     addOutput('');
+  }
+  else if (cmd === 'pwd') {
+    addOutput(currentPath);
+    addOutput('');
+  }
+  else if (cmd === 'ls') {
+    addOutput('');
+    handleLs();
+  }
+  else if (cmd.startsWith('cd ')) {
+    let target = originalCmd.substring(3).trim();
+    handleCd(target);
+  }
+  else if (cmd.startsWith('open ')) {
+    let filename = originalCmd.substring(5).trim();
+    handleOpen(filename);
   }
   else if (cmd === 'about') {
     addOutput('');
@@ -330,7 +376,7 @@ function executeCommand(cmd) {
     window.open(portfolioData.github, '_blank');
   }
   else {
-    addOutput(`Command not found: ${cmd}`, '#ff4444');
+    addOutput(`Command not found: ${originalCmd}`, '#ff4444');
     addOutput('Type "help" for available commands');
     addOutput('');
   }
@@ -555,4 +601,94 @@ class Bin {
     this.x = this.i * newW + newW * 0.5;
     this.y = g.height - buffer * 0.75;    
   }
+}
+
+// File system command handlers
+function handleLs() {
+  if (currentPath === '~') {
+    addOutput('projects/', palette.SELECT);
+  } else if (currentPath === '~/projects') {
+    if (portfolioData.projects.length === 0) {
+      addOutput('(empty)');
+    } else {
+      portfolioData.projects.forEach(proj => {
+        addOutput(proj.name + '/', palette.SELECT);
+      });
+    }
+  } else if (currentRepo) {
+    addOutput('Fetching files from GitHub...', palette.SELECT);
+    addOutput('Use "open <filename>" to view files on GitHub');
+    addOutput('');
+    addOutput('Common files:', palette.SELECT);
+    addOutput('  README.md');
+    addOutput('  index.html');
+    addOutput('  package.json');
+    addOutput('  .gitignore');
+  }
+  addOutput('');
+}
+
+function handleCd(target) {
+  if (target === '~' || target === '') {
+    currentPath = '~';
+    currentRepo = null;
+    addOutput('');
+  } else if (target === '..' || target === '../') {
+    if (currentPath.includes('/')) {
+      let parts = currentPath.split('/');
+      parts.pop();
+      currentPath = parts.join('/') || '~';
+      if (!currentPath.includes('projects/')) {
+        currentRepo = null;
+      }
+    }
+    addOutput('');
+  } else if (target === 'projects' && currentPath === '~') {
+    currentPath = '~/projects';
+    currentRepo = null;
+    addOutput('');
+  } else if (currentPath === '~/projects') {
+    // Check if target matches a project name
+    let project = portfolioData.projects.find(p => 
+      p.name.toLowerCase() === target.toLowerCase() || 
+      p.name.replace(/\s+/g, '-').toLowerCase() === target.toLowerCase()
+    );
+    if (project) {
+      currentPath = `~/projects/${project.name}`;
+      currentRepo = project.repo;
+      addOutput(`Entered repository: ${project.name}`, palette.SELECT);
+      addOutput(`GitHub: ${project.link}`);
+      addOutput('Use "ls" to see files, "open <file>" to view on GitHub');
+      addOutput('');
+    } else {
+      addOutput(`cd: ${target}: No such directory`, '#ff4444');
+      addOutput('');
+    }
+  } else {
+    addOutput(`cd: ${target}: No such directory`, '#ff4444');
+    addOutput('');
+  }
+}
+
+function handleOpen(filename) {
+  if (!currentRepo) {
+    addOutput('Not in a repository. Use "cd projects/<repo-name>" first', '#ff4444');
+    addOutput('');
+    return;
+  }
+  
+  if (!filename || filename === '') {
+    addOutput('Usage: open <filename>', '#ff4444');
+    addOutput('');
+    return;
+  }
+  
+  // Construct GitHub URL
+  let githubUrl = `https://github.com/${currentRepo}/blob/main/${filename}`;
+  
+  addOutput(`Opening ${filename} on GitHub...`, palette.SELECT);
+  addOutput(githubUrl, palette.FG);
+  addOutput('');
+  
+  window.open(githubUrl, '_blank');
 }
