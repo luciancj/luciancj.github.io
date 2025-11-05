@@ -43,6 +43,18 @@ let scanlineY = 0;
 let scanlineSpeed = 2;
 let flickerAmount = 0;
 
+// VHS Effects
+let vhsJitterActive = false;
+let vhsJitterSize = 0;
+let vhsJitterPeriod = 0;
+let vhsJitterProgress = 0;
+let vhsJitterStartTime = 0;
+let vhsCurrentJitter = 0;
+let vhsTapeWrinkleActive = false;
+let vhsTapeWrinklePosition = 1.2;
+let vhsTapeWrinkleSize = 0.05;
+let vhsTime = 0;
+
 // Bin system
 const keys = ['WO', 'FC', 'DR', 'MA'];
 let bins = [];
@@ -381,39 +393,136 @@ function drawBottom() {
 }
 
 function drawOscilloscopeEffects() {
-  // Moving scanline effect (like oscilloscope sweep)
-  scanlineY += scanlineSpeed;
-  if (scanlineY > g.height) {
-    scanlineY = 0;
+  // Update VHS time
+  vhsTime += deltaTime / 1000;
+  
+  // VHS Frame Jitter (horizontal wobble)
+  if (vhsJitterActive) {
+    let step = (deltaTime / 1000) * vhsJitterSize / vhsJitterPeriod;
+    vhsCurrentJitter += step;
+    
+    if (vhsCurrentJitter >= vhsJitterSize) {
+      vhsCurrentJitter = vhsJitterSize;
+      // Start going back
+      step = -step;
+    }
+    
+    if (vhsCurrentJitter <= 0) {
+      vhsJitterActive = false;
+      vhsCurrentJitter = 0;
+      // Schedule next jitter
+      vhsJitterStartTime = vhsTime + random(2, 8);
+    }
+  } else if (vhsTime > vhsJitterStartTime) {
+    // Start new jitter
+    vhsJitterSize = random(1, 8);
+    vhsJitterPeriod = random(0.1, 0.5);
+    vhsCurrentJitter = 0;
+    vhsJitterActive = true;
   }
   
-  // Draw bright horizontal scanline
-  g.push();
-  g.stroke(palette.SELECT);
-  g.strokeWeight(2);
-  g.drawingContext.globalAlpha = 0.4;
-  g.line(0, scanlineY, g.width, scanlineY);
-  
-  // Add glow effect to scanline
-  g.stroke(palette.FG);
-  g.strokeWeight(1);
-  g.drawingContext.globalAlpha = 0.2;
-  g.line(0, scanlineY - 1, g.width, scanlineY - 1);
-  g.line(0, scanlineY + 1, g.width, scanlineY + 1);
-  g.pop();
-  
-  // Random horizontal flicker lines (like signal interference)
-  if (random() > 0.95) {
-    let flickerY = random(g.height);
+  // Apply horizontal jitter offset
+  if (vhsCurrentJitter > 0.1) {
     g.push();
-    g.stroke(palette.FG);
+    g.translate(vhsCurrentJitter, 0);
+  }
+  
+  // VHS Tape Wrinkle (wave distortion)
+  if (vhsTapeWrinkleActive) {
+    vhsTapeWrinklePosition -= (deltaTime / 1000) * 0.3; // Speed of wrinkle movement
+    if (vhsTapeWrinklePosition < -0.2) {
+      vhsTapeWrinkleActive = false;
+    }
+  } else {
+    // Random chance to trigger wrinkle
+    if (random() < 0.001 * (deltaTime / 16.67)) { // Adjusted for frame time
+      vhsTapeWrinklePosition = 1.2;
+      vhsTapeWrinkleSize = random(0.03, 0.08);
+      vhsTapeWrinkleActive = true;
+    }
+  }
+  
+  // Draw tape wrinkle effect - more subtle horizontal distortion band
+  if (vhsTapeWrinkleActive && vhsTapeWrinklePosition > 0 && vhsTapeWrinklePosition < 1) {
+    let wrinkleY = vhsTapeWrinklePosition * g.height;
+    let wrinkleHeight = vhsTapeWrinkleSize * g.height;
+    
+    g.push();
+    
+    // Draw a subtle horizontal distortion band with noise
     g.strokeWeight(1);
-    g.drawingContext.globalAlpha = 0.3;
-    g.line(0, flickerY, g.width, flickerY);
+    for (let y = wrinkleY - wrinkleHeight/2; y < wrinkleY + wrinkleHeight/2; y += 1) {
+      // Horizontal displacement that varies per line
+      let displacement = sin((y / 10) + vhsTime * 3) * 4;
+      
+      // Random static on affected lines
+      if (random() > 0.7) {
+        g.stroke(random() > 0.5 ? palette.FG : palette.BG);
+        g.drawingContext.globalAlpha = random(0.1, 0.3);
+        let x = random(g.width);
+        let w = random(5, 20);
+        g.line(x + displacement, y, x + w + displacement, y);
+      }
+    }
+    
+    // Add overall brightness flicker to wrinkle area
+    g.noStroke();
+    g.fill(palette.FG);
+    g.drawingContext.globalAlpha = 0.05;
+    g.rect(0, wrinkleY - wrinkleHeight/2, g.width, wrinkleHeight);
+    
     g.pop();
   }
   
-  // Subtle screen flicker
+  // VHS Head Switching Noise (thick noise bands)
+  let headSwitchY = (sin(vhsTime * 0.5) * 0.3 + 0.7) * g.height; // Oscillates near bottom
+  let headSwitchThickness = 15;
+  
+  g.push();
+  g.noStroke();
+  
+  // Primary head switch noise
+  g.fill(palette.FG);
+  g.drawingContext.globalAlpha = 0.2;
+  g.rect(vhsCurrentJitter * 1.5, headSwitchY, g.width, headSwitchThickness);
+  
+  // Secondary head switch noise (offset)
+  g.fill(palette.SELECT);
+  g.drawingContext.globalAlpha = 0.15;
+  let secondaryOffset = sin(vhsTime * 2) * 20;
+  g.rect(secondaryOffset, headSwitchY - headSwitchThickness, g.width, headSwitchThickness * 0.6);
+  
+  // Add noise texture to head switch
+  g.drawingContext.globalAlpha = 0.4;
+  for (let i = 0; i < 100; i++) {
+    let x = random(g.width);
+    let y = headSwitchY + random(-headSwitchThickness, headSwitchThickness);
+    g.fill(random() > 0.5 ? palette.FG : palette.BG);
+    g.rect(x, y, random(2, 6), 1);
+  }
+  g.pop();
+  
+  // VHS Pop Lines (random horizontal white lines)
+  if (random() < 0.01) { // 1% chance per frame
+    let popY = random(g.height);
+    let popWidth = random(g.width * 0.3, g.width);
+    let popX = random(0, g.width - popWidth);
+    
+    g.push();
+    g.stroke(palette.FG);
+    g.strokeWeight(random(1, 3));
+    g.drawingContext.globalAlpha = 0.8;
+    g.line(popX, popY, popX + popWidth, popY);
+    
+    // Add flicker around pop line
+    g.strokeWeight(1);
+    g.drawingContext.globalAlpha = 0.3;
+    g.line(popX, popY - 1, popX + popWidth, popY - 1);
+    g.line(popX, popY + 1, popX + popWidth, popY + 1);
+    g.pop();
+  }
+  
+  // Subtle screen flicker (kept from original)
   if (frameCount % 120 === 0) {
     flickerAmount = random(0.02, 0.05);
   } else {
@@ -438,7 +547,13 @@ function drawOscilloscopeEffects() {
   g.rect(2, 2, g.width - 4, g.height - 4);
   g.rect(4, 4, g.width - 8, g.height - 8);
   g.pop();
+  
+  // Reset jitter transform
+  if (vhsCurrentJitter > 0.1) {
+    g.pop();
+  }
 }
+
 
 function drawTerminal() {
   g.fill(palette.FG);
