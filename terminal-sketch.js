@@ -33,6 +33,11 @@ let palette = mobilePalette;
 let smaller;
 let buffer = 120; // Increased to add padding between header box and terminal text
 
+// CRT power-on effect
+let powerOnProgress = 0;
+let powerOnComplete = false;
+let powerOnDuration = 120; // frames (about 2 seconds at 60fps)
+
 // Oscilloscope effects
 let scanlineY = 0;
 let scanlineSpeed = 2;
@@ -135,6 +140,16 @@ function draw() {
   g.background(palette.BG);
   g.textFont('Courier');
   
+  // CRT power-on effect
+  if (!powerOnComplete) {
+    drawPowerOnEffect();
+    powerOnProgress++;
+    if (powerOnProgress >= powerOnDuration) {
+      powerOnComplete = true;
+    }
+    return;
+  }
+  
   // Draw header (like the game's top bar)
   drawTop();
   
@@ -156,6 +171,111 @@ function draw() {
     shaderLayer.shader(crtShader);
     crtShader.setUniform('u_tex', g);
     background(palette.BG);
+    imageMode(CORNER);
+    image(shaderLayer, 0, 0, g.width, g.height);
+  } else {
+    image(g, 0, 0, g.width, g.height);
+  }
+}
+
+function drawPowerOnEffect() {
+  // Classic CRT TV power-on effect
+  // Starts with a horizontal line in the center that expands vertically
+  
+  let progress = powerOnProgress / powerOnDuration;
+  let easeProgress = 1 - pow(1 - progress, 3); // Ease out cubic
+  
+  g.background(0); // Pure black
+  
+  // Calculate expanding height
+  let maxHeight = g.height;
+  let currentHeight = maxHeight * easeProgress;
+  let centerY = g.height / 2;
+  let topY = centerY - currentHeight / 2;
+  let bottomY = centerY + currentHeight / 2;
+  
+  // Draw expanding screen content with glow
+  if (currentHeight > 2) {
+    // Slight horizontal squeeze effect (CRT aspect ratio adjustment)
+    let squeeze = 1 - (1 - easeProgress) * 0.1;
+    let leftPadding = g.width * (1 - squeeze) / 2;
+    
+    g.push();
+    g.rectMode(CORNER);
+    
+    // Draw glowing edges
+    for (let i = 0; i < 3; i++) {
+      g.noFill();
+      g.stroke(palette.FG);
+      g.strokeWeight(2);
+      g.drawingContext.globalAlpha = 0.3 * (1 - i * 0.3);
+      g.rect(leftPadding - i * 2, topY - i * 2, g.width * squeeze + i * 4, currentHeight + i * 4);
+    }
+    
+    // Fill the screen area
+    g.noStroke();
+    g.fill(palette.BG);
+    g.drawingContext.globalAlpha = easeProgress;
+    g.rect(leftPadding, topY, g.width * squeeze, currentHeight);
+    g.pop();
+    
+    // Draw center bright line (electron beam)
+    if (progress < 0.8) {
+      g.push();
+      g.stroke(palette.SELECT);
+      g.strokeWeight(3);
+      g.drawingContext.globalAlpha = 0.8 * (1 - progress / 0.8);
+      g.line(leftPadding, centerY, leftPadding + g.width * squeeze, centerY);
+      g.pop();
+    }
+    
+    // "WARMING UP..." text in early phase
+    if (progress < 0.5) {
+      g.push();
+      g.fill(palette.FG);
+      g.noStroke();
+      g.textFont('Courier');
+      g.textSize(20);
+      g.textAlign(CENTER, CENTER);
+      g.drawingContext.globalAlpha = sin(progress * PI);
+      g.text('WARMING UP...', g.width / 2, centerY - 40);
+      g.pop();
+    }
+    
+    // Add some static/noise in the expanding area
+    if (progress < 0.9) {
+      g.push();
+      g.drawingContext.globalAlpha = 0.15 * (1 - progress);
+      for (let i = 0; i < 50; i++) {
+        let x = random(leftPadding, leftPadding + g.width * squeeze);
+        let y = random(topY, bottomY);
+        g.stroke(palette.FG);
+        g.strokeWeight(1);
+        g.point(x, y);
+      }
+      g.pop();
+    }
+  } else {
+    // Initial bright center line
+    g.push();
+    g.stroke(palette.SELECT);
+    g.strokeWeight(4);
+    g.drawingContext.globalAlpha = 0.9;
+    g.line(0, centerY, g.width, centerY);
+    
+    // Glow around the line
+    g.strokeWeight(8);
+    g.drawingContext.globalAlpha = 0.3;
+    g.line(0, centerY, g.width, centerY);
+    g.pop();
+  }
+  
+  // Apply to screen
+  if (useShader) {
+    shaderLayer.rect(0, 0, g.width, g.height);
+    shaderLayer.shader(crtShader);
+    crtShader.setUniform('u_tex', g);
+    background(0);
     imageMode(CORNER);
     image(shaderLayer, 0, 0, g.width, g.height);
   } else {
