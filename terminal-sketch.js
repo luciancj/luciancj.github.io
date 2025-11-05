@@ -33,10 +33,14 @@ let palette = mobilePalette;
 let smaller;
 let buffer = 120; // Increased to add padding between header box and terminal text
 
-// CRT power-on effect
+// CRT valve TV power-on effect - accurate simulation
 let powerOnProgress = 0;
 let powerOnComplete = false;
-let powerOnDuration = 120; // frames (about 2 seconds at 60fps)
+let powerOnDuration = 180; // frames (about 3 seconds at 60fps)
+let lineOscillatorWarmup = 0;
+let frameOscillatorWarmup = 0;
+let ehtVoltage = 0;
+let focusQuality = 0;
 
 // Oscilloscope effects
 let scanlineY = 0;
@@ -179,94 +183,154 @@ function draw() {
 }
 
 function drawPowerOnEffect() {
-  // Classic CRT TV power-on effect
-  // Starts with a horizontal line in the center that expands vertically
+  // Accurate valve CRT TV power-on simulation
+  // Based on how Line and Frame oscillators warm up
   
   let progress = powerOnProgress / powerOnDuration;
-  let easeProgress = 1 - pow(1 - progress, 3); // Ease out cubic
   
-  g.background(0); // Pure black
+  // Line Output stage warmup (controls horizontal width and EHT voltage generation)
+  // Starts quickly, overshoots slightly, then settles
+  if (progress < 0.15) {
+    // Quick initial warmup
+    lineOscillatorWarmup = pow(progress / 0.15, 0.5) * 1.15;
+  } else if (progress < 0.4) {
+    // Overshoot phase
+    let overshootProgress = (progress - 0.15) / 0.25;
+    lineOscillatorWarmup = 1.15 - 0.15 * pow(overshootProgress, 2);
+  } else {
+    lineOscillatorWarmup = 1.0;
+  }
   
-  // Calculate expanding height
-  let maxHeight = g.height;
-  let currentHeight = maxHeight * easeProgress;
+  // Frame Oscillator warmup (controls vertical height)
+  // Starts later, expands slowly at first, then faster, slight overshoot
+  if (progress < 0.08) {
+    frameOscillatorWarmup = 0;
+  } else if (progress < 0.6) {
+    let frameProgress = (progress - 0.08) / 0.52;
+    frameOscillatorWarmup = pow(frameProgress, 1.5) * 1.2;
+  } else if (progress < 0.85) {
+    let settleProgress = (progress - 0.6) / 0.25;
+    frameOscillatorWarmup = 1.2 - 0.2 * settleProgress;
+  } else {
+    frameOscillatorWarmup = 1.0;
+  }
+  
+  // EHT voltage build-up (affects brightness and beam focus)
+  if (progress < 0.1) {
+    ehtVoltage = 0;
+  } else if (progress < 0.5) {
+    ehtVoltage = pow((progress - 0.1) / 0.4, 2);
+  } else {
+    ehtVoltage = 1.0;
+  }
+  
+  // Focus quality (gun voltages stabilize)
+  if (progress < 0.3) {
+    focusQuality = progress / 0.3 * 0.3; // Very blurry initially
+  } else if (progress < 0.7) {
+    focusQuality = 0.3 + (progress - 0.3) / 0.4 * 0.5; // Getting better
+  } else {
+    focusQuality = 0.8 + (progress - 0.7) / 0.3 * 0.2; // Nearly sharp
+  }
+  
+  g.background(0);
+  
+  // Calculate dimensions based on oscillator warmup
+  let centerX = g.width / 2;
   let centerY = g.height / 2;
-  let topY = centerY - currentHeight / 2;
-  let bottomY = centerY + currentHeight / 2;
   
-  // Draw expanding screen content with glow
-  if (currentHeight > 2) {
-    // Slight horizontal squeeze effect (CRT aspect ratio adjustment)
-    let squeeze = 1 - (1 - easeProgress) * 0.1;
-    let leftPadding = g.width * (1 - squeeze) / 2;
-    
+  let currentWidth = g.width * lineOscillatorWarmup;
+  let currentHeight = g.height * frameOscillatorWarmup;
+  
+  // Only show anything once EHT starts coming up
+  if (ehtVoltage > 0.01) {
     g.push();
-    g.rectMode(CORNER);
     
-    // Draw glowing edges
-    for (let i = 0; i < 3; i++) {
+    // Draw the warming content
+    // Start with a bright horizontal line (beam visible before frame scan works)
+    if (frameOscillatorWarmup < 0.1) {
+      // Just horizontal line
+      let lineWidth = currentWidth;
+      g.stroke(palette.FG);
+      g.strokeWeight(3);
+      g.drawingContext.globalAlpha = ehtVoltage * 0.7;
+      
+      // Heavy blur/glow when focus is poor
+      let blurAmount = (1 - focusQuality) * 20 + 5;
+      g.drawingContext.filter = `blur(${blurAmount}px)`;
+      g.line(centerX - lineWidth/2, centerY, centerX + lineWidth/2, centerY);
+      g.drawingContext.filter = 'none';
+      
+      // Add halation glow
+      g.strokeWeight(10);
+      g.drawingContext.globalAlpha = ehtVoltage * 0.3 * (1 - focusQuality);
+      g.line(centerX - lineWidth/2, centerY, centerX + lineWidth/2, centerY);
+    } else {
+      // Expanding rectangle as frame oscillator kicks in
+      let rectX = centerX - currentWidth / 2;
+      let rectY = centerY - currentHeight / 2;
+      
+      // Apply blur based on focus quality
+      let blurAmount = (1 - focusQuality) * 15;
+      if (blurAmount > 0.5) {
+        g.drawingContext.filter = `blur(${blurAmount}px)`;
+      }
+      
+      // Draw glowing edges (halation effect)
       g.noFill();
       g.stroke(palette.FG);
       g.strokeWeight(2);
-      g.drawingContext.globalAlpha = 0.3 * (1 - i * 0.3);
-      g.rect(leftPadding - i * 2, topY - i * 2, g.width * squeeze + i * 4, currentHeight + i * 4);
-    }
-    
-    // Fill the screen area
-    g.noStroke();
-    g.fill(palette.BG);
-    g.drawingContext.globalAlpha = easeProgress;
-    g.rect(leftPadding, topY, g.width * squeeze, currentHeight);
-    g.pop();
-    
-    // Draw center bright line (electron beam)
-    if (progress < 0.8) {
-      g.push();
-      g.stroke(palette.SELECT);
-      g.strokeWeight(3);
-      g.drawingContext.globalAlpha = 0.8 * (1 - progress / 0.8);
-      g.line(leftPadding, centerY, leftPadding + g.width * squeeze, centerY);
-      g.pop();
-    }
-    
-    // "WARMING UP..." text in early phase
-    if (progress < 0.5) {
-      g.push();
-      g.fill(palette.FG);
+      g.drawingContext.globalAlpha = 0.5 * ehtVoltage;
+      g.rect(rectX, rectY, currentWidth, currentHeight);
+      
+      // Brighter as EHT increases
+      g.strokeWeight(1);
+      g.drawingContext.globalAlpha = 0.3 * ehtVoltage * (1 - focusQuality);
+      g.rect(rectX - 2, rectY - 2, currentWidth + 4, currentHeight + 4);
+      g.rect(rectX - 4, rectY - 4, currentWidth + 8, currentHeight + 8);
+      
+      // Fill screen area
+      g.fill(palette.BG);
       g.noStroke();
-      g.textFont('Courier');
-      g.textSize(20);
-      g.textAlign(CENTER, CENTER);
-      g.drawingContext.globalAlpha = sin(progress * PI);
-      g.text('WARMING UP...', g.width / 2, centerY - 40);
-      g.pop();
-    }
-    
-    // Add some static/noise in the expanding area
-    if (progress < 0.9) {
-      g.push();
-      g.drawingContext.globalAlpha = 0.15 * (1 - progress);
-      for (let i = 0; i < 50; i++) {
-        let x = random(leftPadding, leftPadding + g.width * squeeze);
-        let y = random(topY, bottomY);
+      g.drawingContext.globalAlpha = ehtVoltage;
+      g.rect(rectX, rectY, currentWidth, currentHeight);
+      
+      g.drawingContext.filter = 'none';
+      
+      // Fake scanlines become visible as picture sharpens
+      if (focusQuality > 0.4) {
         g.stroke(palette.FG);
         g.strokeWeight(1);
-        g.point(x, y);
+        g.drawingContext.globalAlpha = 0.1 * focusQuality;
+        for (let y = rectY; y < rectY + currentHeight; y += 3) {
+          g.line(rectX, y, rectX + currentWidth, y);
+        }
       }
-      g.pop();
+      
+      // Add some static/interference
+      if (focusQuality < 0.8) {
+        g.drawingContext.globalAlpha = 0.2 * (1 - focusQuality);
+        for (let i = 0; i < 30; i++) {
+          let x = random(rectX, rectX + currentWidth);
+          let y = random(rectY, rectY + currentHeight);
+          g.stroke(palette.FG);
+          g.strokeWeight(1);
+          g.point(x, y);
+        }
+      }
+      
+      // "WARMING UP..." text early on
+      if (progress < 0.4 && frameOscillatorWarmup > 0.2) {
+        g.fill(palette.FG);
+        g.noStroke();
+        g.textFont('Courier');
+        g.textSize(16);
+        g.textAlign(CENTER, CENTER);
+        g.drawingContext.globalAlpha = sin(progress * PI * 2) * 0.5 + 0.5;
+        g.text('WARMING UP...', centerX, centerY);
+      }
     }
-  } else {
-    // Initial bright center line
-    g.push();
-    g.stroke(palette.SELECT);
-    g.strokeWeight(4);
-    g.drawingContext.globalAlpha = 0.9;
-    g.line(0, centerY, g.width, centerY);
     
-    // Glow around the line
-    g.strokeWeight(8);
-    g.drawingContext.globalAlpha = 0.3;
-    g.line(0, centerY, g.width, centerY);
     g.pop();
   }
   
@@ -274,6 +338,14 @@ function drawPowerOnEffect() {
   if (useShader) {
     shaderLayer.rect(0, 0, g.width, g.height);
     shaderLayer.shader(crtShader);
+    crtShader.setUniform('u_tex', g);
+    background(0);
+    imageMode(CORNER);
+    image(shaderLayer, 0, 0, g.width, g.height);
+  } else {
+    image(g, 0, 0, g.width, g.height);
+  }
+}
     crtShader.setUniform('u_tex', g);
     background(0);
     imageMode(CORNER);
