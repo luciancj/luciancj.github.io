@@ -757,11 +757,31 @@ function handleCd(target) {
     currentRepo = null;
     addOutput('');
   } else if (currentPath === '~/projects') {
-    // Check if target matches a project name
-    let project = portfolioData.projects.find(p => 
-      p.name.toLowerCase() === target.toLowerCase() || 
-      p.name.replace(/\s+/g, '-').toLowerCase() === target.toLowerCase()
-    );
+    // Check if repositories are loaded
+    if (!githubReposLoaded) {
+      addOutput('Still loading repositories from GitHub...', palette.SELECT);
+      addOutput('Please wait a moment and try again.');
+      addOutput('');
+      return;
+    }
+    
+    // Normalize target for matching (remove trailing slash, convert to lowercase)
+    let normalizedTarget = target.toLowerCase().replace(/\/$/, '');
+    
+    // Find matching project with flexible matching
+    let project = portfolioData.projects.find(p => {
+      let repoName = p.name.toLowerCase();
+      // Direct match
+      if (repoName === normalizedTarget) return true;
+      // Match with spaces replaced by hyphens
+      if (repoName.replace(/\s+/g, '-') === normalizedTarget) return true;
+      // Match with hyphens replaced by underscores
+      if (repoName.replace(/-/g, '_') === normalizedTarget) return true;
+      // Partial match (starts with)
+      if (repoName.startsWith(normalizedTarget) && normalizedTarget.length > 3) return true;
+      return false;
+    });
+    
     if (project) {
       currentPath = `~/projects/${project.name}`;
       currentRepo = project.repo;
@@ -771,6 +791,7 @@ function handleCd(target) {
       addOutput('');
     } else {
       addOutput(`cd: ${target}: No such directory`, '#ff4444');
+      addOutput(`Try "ls" to see available repositories`);
       addOutput('');
     }
   } else {
